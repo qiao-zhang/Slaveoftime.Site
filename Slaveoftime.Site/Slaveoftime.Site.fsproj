@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="Migrations/*.fs" />
+		<Compile Include="Services\GithubPullingService.fs" />
+		<Compile Include="Services\PullingBackgroundService.fs" />
+		<Compile Include="UI\Store.fs" />
+		<Compile Include="UI\Hooks.fs" />
+		<Compile Include="UI\JsInterop.fs" />
+		<Compile Include="UI\Controls.fs" />
+		<Compile Include="UI\Navbar.fs" />
+		<Compile Include="UI\PostList.fs" />
+		<Compile Include="UI\PostDetail.fs" />
+		<Compile Include="UI\Main.fs" />
+		<Compile Include="UI\Index.fs" />
+		<Compile Include="Startup.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CliWrap" Version="3.4.1" />
+		<PackageReference Include="EntityFrameworkCore.FSharp" Version="6.0.6" />
+		<PackageReference Include="Fun.Blazor.Server" Version="2.0.0-beta012" />
+		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="2.0.0-beta012" />
+		<PackageReference Include="Markdig" Version="0.27.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2" />
+		<PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Slaveoftime.Db\Slaveoftime.Db.csproj" />
+	</ItemGroup>
+
+</Project>

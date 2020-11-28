@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "watch-css": "tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --watch",
+    "build-css": "tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --minify"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.0.1"
+  }
+}
