@@ -6,7 +6,6 @@ open System.IO
 open System.Linq
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
-open Microsoft.Extensions.Caching.Memory
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open Fun.Result
@@ -16,58 +15,60 @@ open Slaveoftime.Db
 
 type IComponentHook with
 
-    member hook.LoadPosts() =
+    member hook.TryLoadPosts(page) =
         task {
             let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let cache = sp.GetService<IMemoryCache>()
+            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.TryLoadPosts)
+            let store = sp.GetService<IGlobalStore>()
 
-            let key = "post-list"
+            let postsStore = store.UsePosts(page)
 
-            match cache.TryGetValue<Post list> key with
-            | true, x -> return Ok x
-            | false, _ ->
+            match postsStore.Value with
+            | DeferredState.Loading -> ()
+            | DeferredState.Loaded x when x.ExpireDate < DateTime.Now -> ()
+            | _ ->
                 try
                     let db = sp.GetService<SlaveoftimeDb>()
                     let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToArrayAsync() |> Task.map Array.toList
-
-                    if posts.Length > 0 then
-                        cache.Set(key, posts, TimeSpan.FromMinutes 5) |> ignore
-                        return Ok posts
-                    else
-                        return Ok []
+                    postsStore.Publish(DeferredState.Loaded { ExpireDate = DateTime.Now.AddMinutes 5; Posts = posts })
                 with
-                    | ex -> return Error ex.Message
+                    | ex -> logger.LogError $"Load posts failed for page {page}: {ex.Message}"
         }
 
 
-    member hook.LoadPost(postId: Guid) =
+    member hook.TryLoadPost(postId: Guid) =
         task {
             let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.LoadPost)
-            let cache = sp.GetService<IMemoryCache>()
+            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.TryLoadPost)
+            let store = sp.GetService<IGlobalStore>()
+            let postStore = store.UsePost postId
 
-            let key = $"post-detail-{postId}"
-
-            match cache.TryGetValue<Post * string> key with
-            | true, (p, h) -> return Ok(p, h)
-            | false, _ ->
+            match postStore.Value with
+            | DeferredState.Loading -> ()
+            | DeferredState.Loaded x when x.ExpireDate < DateTime.Now -> ()
+            | _ ->
                 try
                     let db = sp.GetService<SlaveoftimeDb>()
                     let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
 
                     if post <> null then
                         let host = sp.GetService<IHostEnvironment>()
-                        let file =
-                            Path.Combine(host.ContentRootPath, "wwwroot", postId.ToString(), "index.html")
+                        let file = Path.Combine(host.ContentRootPath, "wwwroot", postId.ToString(), "index.html")
                         let fileContent = File.ReadAllText file
-                        cache.Set(key, (post, fileContent), TimeSpan.FromMinutes 5) |> ignore
-                        return Ok(post, fileContent)
+                        postStore.Publish(
+                            DeferredState.Loaded
+                                {
+                                    ExpireDate = DateTime.Now.AddMinutes 5
+                                    Post = post
+                                    PostContent = fileContent
+                                }
+                        )
                     else
-                        return Error "Not Found"
+                        postStore.Publish(DeferredState.LoadFailed "Not Found")
                 with
                     | ex ->
                         logger.LogError $"Load Post failed for {postId}: {ex.Message}"
-                        return Error ex.Message
+                        postStore.Publish(DeferredState.LoadFailed ex.Message)
         }
 
 

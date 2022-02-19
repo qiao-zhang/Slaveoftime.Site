@@ -3,7 +3,6 @@ module Slaveoftime.UI.PostDetail
 
 open System
 open System.Linq
-open FSharp.Data.Adaptive
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.JSInterop
 open Fun.Result
@@ -64,36 +63,36 @@ let private postNotFound =
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore, js: IJSRuntime) ->
-        let post = cval DeferredState.Loading
-
-        let loadPost () =
-            task {
-                match! hook.LoadPost postId with
-                | Ok (p, html) ->
-                    post.Publish(DeferredState.Loaded(p, html))
-                    js.changeTitle p.Title |> ignore
-                    js.changeKeywords p.Keywords |> ignore
-                    js.highlightCode () |> ignore
-                | _ ->
-                    post.Publish(DeferredState.LoadFailed "Cannot find post")
-            }
+    html.inject (fun (hook: IComponentHook, globalStore: IGlobalStore, store: IShareStore, js: IJSRuntime) ->
+        let postStore = globalStore.UsePost postId
 
 
-        if store.IsPrerendering.Value then loadPost().Wait()
+        if store.IsPrerendering.Value then hook.TryLoadPost(postId).Wait()
 
         hook.OnFirstAfterRender.Add(fun () ->
             hook.IncreaseViewCount postId |> ignore
-            if post.Value.Value.IsNone then loadPost () |> ignore
+            hook.TryLoadPost postId |> ignore
+
+            hook.AddDisposes [
+                postStore.AddInstantCallback(
+                    function
+                    | DeferredState.Loaded data ->
+                        js.changeTitle data.Post.Title |> ignore
+                        js.changeKeywords data.Post.Keywords |> ignore
+                        js.highlightCode () |> ignore
+                    | _ -> ()
+                )
+            ]
         )
 
 
         let detail =
             adaptiview () {
-                match! post with
-                | DeferredState.Loaded (post, postHtml) ->
-                    postSummary post
-                    postContent postHtml
+                match! postStore with
+                | DeferredState.NotStartYet -> html.none
+                | DeferredState.Loaded data ->
+                    postSummary data.Post
+                    postContent data.PostContent
                 | DeferredState.Loading -> loader
                 | _ -> postNotFound
             }

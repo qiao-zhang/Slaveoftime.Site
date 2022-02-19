@@ -1,7 +1,6 @@
 [<AutoOpen>]
 module Slaveoftime.UI.PostList
 
-open FSharp.Data.Adaptive
 open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
@@ -37,9 +36,7 @@ let private postCard (post: Post) =
         }
         p {
             class' "text-purple-500/50 text-2xs my-2"
-            span {
-                post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
-            }
+            span { post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss") }
             span {
                 class' "pl-3"
                 post.ViewCount
@@ -58,36 +55,25 @@ let private postCard (post: Post) =
 
 
 let postList =
-    html.inject (fun (store: IShareStore, hook: IComponentHook, js: IJSRuntime) ->
-        let posts = cval DeferredState.Loading
-
-        let loadPosts () =
-            task {
-                let! result = hook.LoadPosts()
-                posts.Publish(DeferredState.ofResult result)
-            }
-
-        if store.IsPrerendering.Value then loadPosts().Wait()
-
+    html.inject (fun (store: IShareStore, globalStore: IGlobalStore, hook: IComponentHook, js: IJSRuntime) ->
+        if store.IsPrerendering.Value then hook.TryLoadPosts(0).Wait()
 
         hook.OnFirstAfterRender.Add(fun () ->
             js.changeTitle TitleStr |> ignore
             js.changeKeywords KeywordsStr |> ignore
-
-            match posts.Value with
-            | DeferredState.Loaded x when x.Length > 0 -> ()
-            | _ -> loadPosts () |> ignore
+            hook.TryLoadPosts 0 |> ignore
         )
 
 
         let cards =
             adaptiview () {
-                match! posts with
+                match! globalStore.UsePosts 0 with
                 | DeferredState.Loading -> loader
                 | DeferredState.Loaded ps ->
-                    for post in ps do
+                    for post in ps.Posts do
                         postCard post
-                | _ -> html.none
+                | _ ->
+                    html.none
             }
 
 
