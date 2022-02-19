@@ -28,7 +28,7 @@ type IComponentHook with
             | false, _ ->
                 try
                     let db = sp.GetService<SlaveoftimeDb>()
-                    let! posts = db.Posts.OrderByDescending(fun x -> x.UpdatedTime).ToArrayAsync() |> Task.map Array.toList
+                    let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToArrayAsync() |> Task.map Array.toList
 
                     if posts.Length > 0 then
                         cache.Set(key, posts, TimeSpan.FromMinutes 5) |> ignore

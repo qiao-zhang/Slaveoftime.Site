@@ -72,7 +72,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
         |> Seq.iter (fun x -> File.Copy(x, targetFolder </> Path.GetFileName x, true))
 
 
-    let cachePost (file, author, id, title, keywords, description) =
+    let cachePost (file, author, id, title, keywords, description, createTime) =
         let fileInfo = FileInfo file
         let targetFolder = wwwroot </> id.ToString()
         let post = db.Posts.Where(fun x -> x.Id = id).FirstOrDefault()
@@ -86,7 +86,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
                     Keywords = (keywords <?> ""),
                     Description = (description <?> ""),
                     Author = author,
-                    CreatedTime = DateTime.Now,
+                    CreatedTime = (createTime <?> fileInfo.LastWriteTime),
                     UpdatedTime = fileInfo.LastWriteTime
                 )
             db.Posts.Add(newPost) |> ignore
@@ -97,6 +97,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
             post.Title <- title
             post.Keywords <- keywords <?> ""
             post.Description <- description <?> ""
+            post.CreatedTime <- createTime <?> post.CreatedTime
             post.UpdatedTime <- fileInfo.LastWriteTime
             db.SaveChanges() |> ignore
 
@@ -109,6 +110,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
         let mutable title = ValueNone
         let mutable description = ValueNone
         let mutable keywords = ValueNone
+        let mutable createTime = ValueNone
 
         use lines = File.ReadLines(file).GetEnumerator()
 
@@ -120,6 +122,11 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
                 | SafeStringTail "- title:" tail -> title <- ValueSome tail
                 | SafeStringTail "- keywords:" tail -> keywords <- ValueSome tail
                 | SafeStringTail "- description:" tail -> description <- ValueSome tail
+                | SafeStringTail "- createTime:" tail ->
+                    createTime <-
+                        match DateTime.TryParse tail with
+                        | true, x -> ValueSome x
+                        | _ -> ValueNone
                 | SafeStringTail "- id:" tail ->
                     id <-
                         match Guid.TryParse(tail.Trim()) with
@@ -130,7 +137,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
             i <- i + 1
 
         match title, id with
-        | ValueSome title, ValueSome id -> cachePost (file, author, id, title, keywords, description)
+        | ValueSome title, ValueSome id -> cachePost (file, author, id, title, keywords, description, createTime)
         | _ -> ()
 
 

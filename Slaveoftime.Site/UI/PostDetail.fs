@@ -35,7 +35,7 @@ let private postSummary (post: Post) =
         }
         p {
             class' "text-purple-500/50 text-xs mt-5 text-center"
-            post.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")
+            post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
         }
         div {
             class' "flex flex-row justify-center mt-2"

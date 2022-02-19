@@ -38,7 +38,7 @@ let private postCard (post: Post) =
         p {
             class' "text-purple-500/50 text-2xs my-2"
             span {
-                post.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")
+                post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
             }
             span {
                 class' "pl-3"
