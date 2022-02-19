@@ -28,7 +28,7 @@ type Index() =
         fragment {
             doctype "html"
             html' {
-                class' "bg-neutral-50 dark:bg-neutral-1000 scrollbar"
+                class' "bg-slate-100 dark:bg-slate-900 scrollbar"
                 head {
                     staticHead
                     metas

@@ -14,7 +14,6 @@ let staticHead =
         <link rel="stylesheet" media="(prefers-color-scheme:dark)" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/themes/dark.css"
             onload="document.documentElement.classList.add('sl-theme-dark');">
         <link href="css/app-generated.css" rel="stylesheet">
-        <link href="css/github-markdown.css" rel="stylesheet">
         <link href="css/prism-night-owl.css" rel="stylesheet">
     """
 

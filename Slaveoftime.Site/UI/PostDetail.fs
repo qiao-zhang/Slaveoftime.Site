@@ -34,7 +34,7 @@ let private postSummary (post: Post) =
             post.Title
         }
         p {
-            class' "text-purple-500/50 text-xs mt-5 text-center"
+            class' "text-purple-500/60 text-xs mt-5 text-center"
             post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
         }
         div {
@@ -45,9 +45,9 @@ let private postSummary (post: Post) =
 
 let private postContent (postHtml: string) =
     section {
-        class' "my-13 px-5"
+        class' "my-13 px-5 text-slate-900 dark:text-slate-100 scrollbar"
         article {
-            class' "markdown-body min-h-[500px]"
+            class' "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-purple-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-md"
             html.raw postHtml
         }
     }
