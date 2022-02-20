@@ -15,7 +15,7 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
     let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId)
 
     if post = null then
-        html.none
+        title { "slaveOftime blogs" }
     else
         fragment {
             title { post.Title }

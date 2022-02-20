@@ -11,7 +11,7 @@ open Slaveoftime.Db
 let private TitleStr = "slaveOftime blogs"
 
 [<Literal>]
-let private KeywordsStr = "slaveoftime,fsharp.dotnet"
+let private KeywordsStr = "slaveoftime,fsharp,csharp,typescript,dotnet,frontend,backend"
 
 
 let getPostListMeta =
