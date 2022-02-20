@@ -25,31 +25,40 @@ let getPostListMeta =
 
 
 let private postCard (post: Post) =
+    let url = $"blog/{post.Id}?title={post.Title}"
+    let title = post.Title
+    let viewCount = post.ViewCount
+    let author = post.Author
+    let description = post.Description
+    let createdTime = post.CreatedTime.ToString("yyyy-MM-dd")
+    let keywords = keywords post.Keywords
+
+    // To make the whole CE block can be inlined, we need to make sure all its reference is in local scope 
     div {
         class' "p-8 rounded-md bg-gray-600/10 my-5"
         h2 {
             class' "text-purple-500/80 first-letter:text-2xl first-letter:text-yellow-500 underline text-xl font-semibold"
             a {
-                href $"blog/{post.Id}?title={post.Title}"
-                post.Title
+                href url
+                title
             }
         }
         p {
             class' "text-purple-500/50 text-2xs my-2"
-            span { post.CreatedTime.ToString("yyyy-MM-dd") }
+            span { createdTime }
             span {
                 class' "pl-3"
-                post.ViewCount
+                viewCount
             }
             span {
                 class' "pl-3 font-semibold"
-                post.Author
+                author
             }
         }
-        keywords post.Keywords
+        keywords
         p {
             class' "text-neutral-400/90 mt-2 text-sm"
-            post.Description
+            description
         }
     }
 
@@ -76,8 +85,7 @@ let postList =
                 | DeferredState.Loaded ps ->
                     for post in ps.Posts do
                         postCard post
-                | _ ->
-                    html.none
+                | _ -> html.none
             }
 
 

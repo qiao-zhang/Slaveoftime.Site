@@ -27,18 +27,22 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
 
 
 let private postSummary (post: Post) =
+    let title = post.Title
+    let keywords = keywords post.Keywords
+    let createdTime = post.CreatedTime.ToString("yyyy-MM-dd")
+
     fragment {
         h1 {
             class' "text-2xl font-bold text-purple-500/80 mt-10 mx-13 text-center"
-            post.Title
+            title
         }
         p {
             class' "text-purple-500/60 text-xs mt-5 text-center"
-            post.CreatedTime.ToString("yyyy-MM-dd")
+            createdTime
         }
         div {
             class' "flex flex-row justify-center mt-2"
-            keywords post.Keywords
+            keywords
         }
     }
 
