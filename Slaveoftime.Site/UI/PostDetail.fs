@@ -14,7 +14,7 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
     let db = sp.GetService<SlaveoftimeDb>()
     let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId)
 
-    if box post = null then
+    if post = null then
         html.none
     else
         fragment {
@@ -78,7 +78,7 @@ let postDetail (postId: Guid) =
             hook.TryLoadPost postId |> ignore
 
             hook.AddDisposes [
-                // Use InstantCallback so we can trigger a call immediatly, because the postStore may already cached so it will not load again, and lazy callback will be triggered.
+                // Use InstantCallback so we can trigger a call immediatly, because the postStore may already cached so it will not load again, and lazy callback will not be triggered.
                 postStore.AddInstantCallback(
                     function
                     | DeferredState.Loaded data ->
