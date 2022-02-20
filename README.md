@@ -4,21 +4,25 @@ This project will pull a public github repos and find any .md files which contai
 
 
 ``` txt
-- id: da34ea79-9910-48f0-ac76-7e926307e845
+- id: 7e494852-ecc9-477d-910c-b1a4d31a75bd
 - title: Demo title
 - keywords: key1,key2
 - description: some description
+- createTime: 2022-02-20
 ---
 ```
+
+    id, title is required
+    assets must be put in the same folder for the related md file
 
 
 ## How to develop
 
-    - CD to ./Slaveoftime.Site
+    - cd to ./Slaveoftime.Site
 
     - pnpm install
     - pnpm run watch-css
 
-    - Open a new terminal and run:
+    - open a new terminal and run:
     - dotnet watch run
 

@@ -6,6 +6,10 @@ open Fun.Blazor.Router
 
 
 let staticHead =
+    // In VSCode with plugin: "Highlight HTML/SQL templates in F#" we can get hightlight and intellicense for below code
+    // In Fun.Blazor V2 this is very efficient way to build static html fragments because there is only one call hanpens under the hood.
+    // And even in csharp razor engine, the generated code will call exactly the same method.
+    // So it is the best if we can keep static fragment in this way if you are using VSCode.
     Template.html $"""
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,12 +39,8 @@ let routes =
 
 
 let app =
-    html.inject (fun (store: IShareStore, hook: IComponentHook) ->
-        hook.OnFirstAfterRender.Add(fun () -> store.IsPrerendering.Publish(false))
-
-        div {
-            navbar
-            routes
-            footerSection
-        }
-    )
+    div {
+        navbar
+        routes
+        footerSection
+    }

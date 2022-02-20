@@ -34,7 +34,7 @@ let private postSummary (post: Post) =
         }
         p {
             class' "text-purple-500/60 text-xs mt-5 text-center"
-            post.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
+            post.CreatedTime.ToString("yyyy-MM-dd")
         }
         div {
             class' "flex flex-row justify-center mt-2"
@@ -74,6 +74,7 @@ let postDetail (postId: Guid) =
             hook.TryLoadPost postId |> ignore
 
             hook.AddDisposes [
+                // Use InstantCallback so we can trigger a call immediatly, because the postStore may already cached so it will not load again, and lazy callback will be triggered.
                 postStore.AddInstantCallback(
                     function
                     | DeferredState.Loaded data ->

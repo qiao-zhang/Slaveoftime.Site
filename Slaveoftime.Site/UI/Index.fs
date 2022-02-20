@@ -17,6 +17,7 @@ type Index() =
         let store = ctx.RequestServices.GetService<IShareStore>()
         store.IsPrerendering.Publish true
 
+        // Just get title and keywords for prerender and SEO
         let metas =
             html.route [
                 routeCif "blog/%O" (getPostDetailMeta ctx.RequestServices)
