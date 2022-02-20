@@ -8,7 +8,7 @@ open Slaveoftime.Db
 
 
 [<Literal>]
-let private TitleStr = "Blogs"
+let private TitleStr = "slaveOftime blogs"
 
 [<Literal>]
 let private KeywordsStr = "slaveoftime,fsharp.dotnet"
