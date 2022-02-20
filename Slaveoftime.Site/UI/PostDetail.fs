@@ -17,11 +17,13 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
     if post = null then
         title { "slaveOftime blogs" }
     else
+        let titleStr = post.Title
+        let keywords = post.Keywords
         fragment {
-            title { post.Title }
+            title { titleStr }
             meta {
                 name "keywords"
-                value post.Keywords
+                value keywords
             }
         }
 
