@@ -29,3 +29,5 @@ This project will pull a public github repos and find any .md files which contai
     - open a new terminal and run:
     - fun-blazor watch .\Slaveoftime.Site.fsproj -s https://localhost:6001
 
+    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0-beta020
+    
