@@ -20,7 +20,7 @@ type PullingBackgroundService(logger: ILogger<PullingBackgroundService>, scf: IS
                 for kv in urls do
                     do! githubPullingSvc.Pull kv.Value
 
-                let delay = 1000 * 60 * 10
+                let delay = 1000 * 60 * 5
                 logger.LogInformation $"Pulling will pause {delay} ms"
                 do! Task.Delay delay
         }

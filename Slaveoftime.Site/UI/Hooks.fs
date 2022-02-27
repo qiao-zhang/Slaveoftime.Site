@@ -25,12 +25,14 @@ type IComponentHook with
 
             match postsStore.Value with
             | DeferredState.Loading -> ()
-            | DeferredState.Loaded x when x.ExpireDate < DateTime.Now -> ()
+            | DeferredState.Loaded x when x.ExpireDate > DateTime.Now -> ()
             | _ ->
                 try
+                    logger.LogInformation $"Load post from db: {page}"
                     let db = sp.GetService<SlaveoftimeDb>()
                     let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToArrayAsync() |> Task.map Array.toList
                     postsStore.Publish(DeferredState.Loaded { ExpireDate = DateTime.Now.AddMinutes 5; Posts = posts })
+                    logger.LogInformation $"Loaded post from db: {page}"
                 with
                     | ex -> logger.LogError $"Load posts failed for page {page}: {ex.Message}"
         }
@@ -45,9 +47,10 @@ type IComponentHook with
 
             match postStore.Value with
             | DeferredState.Loading -> ()
-            | DeferredState.Loaded x when x.ExpireDate < DateTime.Now -> ()
+            | DeferredState.Loaded x when x.ExpireDate > DateTime.Now -> ()
             | _ ->
                 try
+                    logger.LogInformation $"Load post detail from db: {postId}"
                     let db = sp.GetService<SlaveoftimeDb>()
                     let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
 
@@ -63,8 +66,10 @@ type IComponentHook with
                                     PostContent = fileContent
                                 }
                         )
+                        logger.LogInformation $"Loaded post detail from db: {postId}"
                     else
                         postStore.Publish(DeferredState.LoadFailed "Not Found")
+                        logger.LogInformation $"Load post detail from db failed: not found {postId}"
                 with
                     | ex ->
                         logger.LogError $"Load Post failed for {postId}: {ex.Message}"
@@ -75,9 +80,10 @@ type IComponentHook with
     member hook.IncreaseViewCount(postId: Guid) =
         task {
             let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let logger =
-                sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.IncreaseViewCount)
+            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.IncreaseViewCount)
             try
+                logger.LogInformation "Increasing view count"
+                
                 let db = sp.GetService<SlaveoftimeDb>()
                 let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
 

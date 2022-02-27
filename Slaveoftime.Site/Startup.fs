@@ -7,14 +7,27 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open SixLabors.ImageSharp.Web.DependencyInjection
+open Serilog
+open Serilog.Events
 open Slaveoftime
 open Slaveoftime.Db
 open Slaveoftime.Services
 
 
+Log.Logger <-
+    LoggerConfiguration()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.File("./logs/sites.log", rollOnFileSizeLimit = true, fileSizeLimitBytes = 1024L * 1024L * 5L, retainedFileCountLimit = 20)
+            .CreateLogger()
+
+
 let builder = WebApplication.CreateBuilder(Environment.GetCommandLineArgs())
+let host = builder.Host
 let services = builder.Services
 
+host.UseSerilog()
 
 services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Source=Slaveofitme.db") |> ignore)
 services.AddMemoryCache()
@@ -53,7 +66,6 @@ services.AddImageSharp()
 
 let app = builder.Build()
 
-
 let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
 let db = scope.ServiceProvider.GetService<SlaveoftimeDb>()
 db.Database.Migrate()
@@ -72,3 +84,5 @@ app.MapFunBlazor(Slaveoftime.UI.Index.page)
 #endif
 
 app.Run()
+Log.CloseAndFlush()
+
