@@ -64,6 +64,11 @@ app.UseImageSharp()
 app.UseStaticFiles()
 
 app.MapBlazorHub()
-app.MapFunBlazor(UI.Index.page)
+
+#if DEBUG
+app.MapFunBlazor(Slaveoftime.UI.Index.page, hotReload = true)
+#else
+app.MapFunBlazor(Slaveoftime.UI.Index.page)
+#endif
 
 app.Run()

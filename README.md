@@ -24,5 +24,8 @@ This project will pull a public github repos and find any .md files which contai
     - pnpm run watch-css
 
     - open a new terminal and run:
-    - dotnet watch run
+    - dotnet run
+
+    - open a new terminal and run:
+    - fun-blazor watch .\Slaveoftime.Site.fsproj -s https://localhost:6001
 

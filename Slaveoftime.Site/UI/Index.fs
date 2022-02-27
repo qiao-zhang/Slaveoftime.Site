@@ -8,9 +8,13 @@ open Fun.Blazor.Router
 
 
 type Index() =
-    inherit FunBlazorComponent()
 
+#if DEBUG
+    inherit HotReloadComponent("Slaveoftime.UI.Main.app", app)
+#else
+    inherit FunBlazorComponent()
     override _.Render() = app
+#endif
 
 
     static member page(ctx: HttpContext) =
@@ -38,6 +42,9 @@ type Index() =
                     root
                     staticScript
                     interopScript
+#if DEBUG
+                    hotReloadJSInterop
+#endif
                 }
             }
         }
