@@ -35,17 +35,17 @@ let private postSummary (post: Post) =
     let createdTime = post.CreatedTime.ToString("yyyy-MM-dd")
 
     fragment {
+        div {
+            class' "flex flex-row justify-center mt-10"
+            keywords
+        }
         h1 {
-            class' "text-2xl font-bold text-purple-500/80 mt-10 mx-13 text-center"
+            class' "text-2xl font-bold text-teal-500/90 mt-5 mx-13 text-center"
             title
         }
         p {
-            class' "text-purple-500/60 text-xs mt-5 text-center"
+            class' "text-teal-500/80 text-xs mt-5 text-center"
             createdTime
-        }
-        div {
-            class' "flex flex-row justify-center mt-2"
-            keywords
         }
     }
 
@@ -53,7 +53,7 @@ let private postContent (postHtml: string) =
     section {
         class' "my-13 px-5 text-slate-900 dark:text-slate-100 scrollbar"
         article {
-            class' "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-purple-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-md"
+            class' "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 "
             html.raw postHtml
         }
     }
