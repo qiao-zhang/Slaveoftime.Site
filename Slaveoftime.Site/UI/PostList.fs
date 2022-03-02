@@ -38,7 +38,7 @@ let private postCard (post: Post) =
     div {
         class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
         h2 {
-            class' "text-teal-600/80 hover:text-yellow-500 first-letter:text-2xl first-letter:text-yellow-500 underline text-xl font-semibold"
+            class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
             a {
                 href url
                 title
@@ -71,7 +71,6 @@ let postList =
 
         // Below callback will happen when the browser rendered the content and SignalR connection is live.
         // Even prerender already got the title and keywords information, but after user navigate to other location those information may be changed so we will need to update again just for better user experience.
-
         hook.OnFirstAfterRender.Add(fun () ->
             js.changeTitle TitleStr |> ignore
             js.changeKeywords KeywordsStr |> ignore
@@ -88,7 +87,6 @@ let postList =
                         postCard post
                 | _ -> html.none
             }
-
 
         div {
             class' "sm:w-5/6 md:w-3/4 max-w-[720px] m-auto min-h-[500px]"

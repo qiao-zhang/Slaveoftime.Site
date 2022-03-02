@@ -8,12 +8,13 @@ open Fun.Blazor.Router
 
 
 type Index() =
-
-#if DEBUG
-    inherit HotReloadComponent("Slaveoftime.UI.Main.app", app)
-#else
     inherit FunBlazorComponent()
-    override _.Render() = app
+
+    override _.Render() =
+#if DEBUG
+        html.hotReloadComp (app, "Slaveoftime.UI.Main.app")
+#else
+        app
 #endif
 
 
@@ -43,19 +44,8 @@ type Index() =
                     staticScript
                     interopScript
 #if DEBUG
-                    hotReloadJSInterop
-#endif
-                    html.raw """
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-147730361-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-147730361-1');
-</script>
-                    """
+                    html.hotReloadJSInterop
+#endif                
                 }
             }
         }

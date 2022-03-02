@@ -11,7 +11,7 @@ let staticHead =
     // In Fun.Blazor V2 this is very efficient way to build static html fragments because there is only one call hanpens under the hood.
     // And even in csharp razor engine, the generated code will call exactly the same method.
     // So it is the best if we can keep static fragment in this way if you are using VSCode.
-    Template.html $"""
+    Static.html """
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <base href="/" />
@@ -24,11 +24,20 @@ let staticHead =
 
 
 let staticScript =
-    Template.html $"""
+    Static.html """
         <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/shoelace.js"></script>
         <script src="_framework/blazor.server.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147730361-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-147730361-1');
+        </script>
     """
 
 

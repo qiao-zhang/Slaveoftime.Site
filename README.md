@@ -24,10 +24,10 @@ This project will pull a public github repos and find any .md files which contai
     - pnpm run watch-css
 
     - open a new terminal and run:
-    - dotnet run
+    - fun-blazor watch .\Slaveoftime.Site.fsproj
 
     - open a new terminal and run:
-    - fun-blazor watch .\Slaveoftime.Site.fsproj -s https://localhost:6001
+    - dotnet run
 
-    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0-beta020
+    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0-beta024
     
