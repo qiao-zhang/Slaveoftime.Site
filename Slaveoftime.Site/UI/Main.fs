@@ -23,21 +23,14 @@ let staticHead =
     """
 
 
+// Comment this out, because not really used any of its control so far. But plan to use it in the future.
+// <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/shoelace.js"></script>
 let staticScript =
     Static.html """
-        <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/shoelace.js"></script>
         <script src="_framework/blazor.server.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147730361-1"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'UA-147730361-1');
-        </script>
++       <script async src="_content/Blazor-Analytics/blazor-analytics.js"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
     """
 
 
@@ -53,4 +46,5 @@ let app =
         navbar
         routes
         footerSection
+        html.blazor<Blazor.Analytics.Components.NavigationTracker>()
     }
