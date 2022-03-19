@@ -16,13 +16,13 @@ let private KeywordsStr = "slaveoftime,fsharp,csharp,typescript,dotnet,frontend,
 
 
 let getPostListMeta =
-    fragment {
+    html.fragment [
         title { TitleStr }
         meta {
             name "keywords"
             value KeywordsStr
         }
-    }
+    ]
 
 
 let private postCard (post: Post) =
@@ -37,30 +37,32 @@ let private postCard (post: Post) =
     // To make the whole CE block can be inlined, we need to make sure all its reference is in local scope 
     div {
         class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
-        h2 {
-            class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
-            a {
-                href url
-                title
+        childContent [
+            h2 {
+                class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
+                a {
+                    href url
+                    title
+                }
             }
-        }
-        p {
-            class' "text-teal-500/60 text-2xs my-2"
-            span { createdTime }
-            span {
-                class' "pl-3"
-                viewCount
+            p {
+                class' "text-teal-500/60 text-2xs my-2"
+                span { createdTime }
+                span {
+                    class' "pl-3"
+                    viewCount
+                }
+                span {
+                    class' "pl-3 font-semibold"
+                    author
+                }
             }
-            span {
-                class' "pl-3 font-semibold"
-                author
+            keywords
+            p {
+                class' "dark:text-neutral-400/90 text-neutral-600/90 mt-2 text-sm"
+                description
             }
-        }
-        keywords
-        p {
-            class' "dark:text-neutral-400/90 text-neutral-600/90 mt-2 text-sm"
-            description
-        }
+        ]
     }
 
 

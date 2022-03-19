@@ -6,7 +6,7 @@ open Fun.Blazor
 
 
 let navbar =
-    fragment {
+    html.fragment [
         div {
             class' "flex flex-row justify-center bg-green-100/30 text-green-400 py-2"
             "STAND FOR "
@@ -24,4 +24,4 @@ let navbar =
                 "slaveOftime"
             }
         }
-    }
+    ]

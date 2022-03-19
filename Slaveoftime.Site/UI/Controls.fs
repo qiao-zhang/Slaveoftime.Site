@@ -6,30 +6,32 @@ open Fun.Blazor
 
 
 let keywords (keywords: string) =
-    div {
+    div.create [
         for keyword in keywords.Split [| ','; ';' |] do
             span {
                 class' "text-xs px-3 py-1 rounded-full mr-2 dark:bg-teal-100/20 bg-teal-200/20 dark:text-neutral-100/80 text-neutral-700/90"
                 keyword
             }
-    }
+    ]
 
 
 let footerSection =
     footer {
         class' "flex flex-col justify-center items-center py-10"
-        p {
-            class' "text-sm text-neutral-400/90"
-            "albertwoo_slaveoftime@hotmail.com"
-        }
-        p {
-            class' "mt-2 text-sm text-teal-500/80 font-semibold"
-            "Powered by ASP.NET Core 6 & Blazor"
-        }
-        p {
-            class' "mt-2 text-sm text-neutral-400/90"
-            "2022-02-14"
-        }
+        childContent [
+            p {
+                class' "text-sm text-neutral-400/90"
+                "albertwoo_slaveoftime@hotmail.com"
+            }
+            p {
+                class' "mt-2 text-sm text-teal-500/80 font-semibold"
+                "Powered by ASP.NET Core 6 & Blazor"
+            }
+            p {
+                class' "mt-2 text-sm text-neutral-400/90"
+                "2022-02-14"
+            }
+        ]
     }
 
 

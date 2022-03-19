@@ -20,13 +20,13 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
     else
         let titleStr = post.Title
         let keywords = post.Keywords
-        fragment {
+        html.fragment [
             title { titleStr }
             meta {
                 name "keywords"
                 value keywords
             }
-        }
+        ]
 
 
 let private postSummary (post: Post) =
@@ -34,7 +34,7 @@ let private postSummary (post: Post) =
     let keywords = keywords post.Keywords
     let createdTime = post.CreatedTime.ToString("yyyy-MM-dd")
 
-    fragment {
+    html.fragment [
         div {
             class' "flex flex-row justify-center mt-10"
             keywords
@@ -47,7 +47,7 @@ let private postSummary (post: Post) =
             class' "text-teal-500/80 text-xs mt-5 text-center"
             createdTime
         }
-    }
+    ]
 
 let private postContent (postHtml: string) =
     section {
