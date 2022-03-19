@@ -9,7 +9,7 @@ open Microsoft.EntityFrameworkCore
 open SixLabors.ImageSharp.Web.DependencyInjection
 open Serilog
 open Serilog.Events
-open Slaveoftime
+open Blazor.Analytics
 open Slaveoftime.Db
 open Slaveoftime.Services
 
@@ -35,6 +35,7 @@ services.AddMemoryCache()
 services.AddControllersWithViews()
 services.AddServerSideBlazor()
 services.AddFunBlazorServer()
+services.AddGoogleAnalytics("UA-147730361-1")
 
 services.AddTransient<GithubPoolingService>()
 services.AddHostedService<PullingBackgroundService>()

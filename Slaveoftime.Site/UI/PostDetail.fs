@@ -30,22 +30,18 @@ let getPostDetailMeta (sp: IServiceProvider) (postId: Guid) =
 
 
 let private postSummary (post: Post) =
-    let title = post.Title
-    let keywords = keywords post.Keywords
-    let createdTime = post.CreatedTime.ToString("yyyy-MM-dd")
-
     html.fragment [
         div {
             class' "flex flex-row justify-center mt-10"
-            keywords
+            keywords post.Keywords
         }
         h1 {
             class' "text-2xl font-bold text-teal-500/90 mt-5 mx-13 text-center"
-            title
+            post.Title
         }
         p {
             class' "text-teal-500/80 text-xs mt-5 text-center"
-            createdTime
+            post.CreatedTime.ToString("yyyy-MM-dd")
         }
     ]
 
@@ -53,7 +49,8 @@ let private postContent (postHtml: string) =
     section {
         class' "my-13 px-5 text-slate-900 dark:text-slate-100 scrollbar"
         article {
-            class' "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 "
+            class'
+                "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 max-w-max"
             html.raw postHtml
         }
     }
