@@ -22,16 +22,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Blazor-Analytics" Version="3.10.0" />
-		<PackageReference Include="CliWrap" Version="3.4.1" />
+		<PackageReference Include="Blazor-Analytics" Version="3.11.0" />
+		<PackageReference Include="CliWrap" Version="3.4.4" />
 		<PackageReference Include="EntityFrameworkCore.FSharp" Version="6.0.6" />
-		<PackageReference Include="Fun.Blazor.Server" Version="2.0.0-beta031" />
-		<PackageReference Include="Fun.Blazor.HotReload" Version="2.0.0-beta031" />
-		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="2.0.0-beta031" />
-		<PackageReference Include="Markdig" Version="0.27.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2" />
+		<PackageReference Include="Fun.Blazor.Server" Version="2.0.0" />
+		<PackageReference Include="Fun.Blazor.HotReload" Version="2.0.0" />
+		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="2.0.0" />
+		<PackageReference Include="Markdig" Version="0.30.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5" />
 		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
-		<PackageReference Include="SixLabors.ImageSharp.Web" Version="1.0.5" />
+		<PackageReference Include="SixLabors.ImageSharp.Web" Version="2.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

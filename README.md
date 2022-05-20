@@ -29,5 +29,5 @@ This project will pull a public github repos and find any .md files which contai
     - open a new terminal and run:
     - dotnet run
 
-    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0-beta024
+    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0
     
