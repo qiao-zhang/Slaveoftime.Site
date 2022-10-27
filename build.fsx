@@ -3,8 +3,7 @@
 #r "nuget: Fake.Core.Environment,5.20.0"
 #r "nuget: Fake.IO.Zip,5.20.0"
 #r "nuget: BlackFox.Fake.BuildTask,0.1.3"
-#r "nuget: Fun.Build, 0.2.1"
-
+#r "nuget: Fun.Build, 0.2.2"
 
 open System
 open System.IO
@@ -71,8 +70,9 @@ pipeline "deploy" {
             let siteName = ctx.GetEnvVar "IIS_WEBSITE_NAME"
             let targetDir = ctx.GetEnvVar "WEBSITE_CONTENT_PATH"
 
-            let msdeploy (x: string) =            
-                let proc = ctx.BuildCommand($"'C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe' {x}") |> Process.Start
+            let msdeploy (x: string) =
+                let cmd = ProcessStartInfo("C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe", Arguments = x)
+                let proc = Process.Start cmd
                 proc.WaitForExit()
 
             msdeploy $"-verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp=\"{appName}\",recycleMode=\"StopAppPool\",computerName=\"{host}/msdeploy.axd?site={siteName}\",username=\"{user}\",password=\"{pwd}\",AuthType=\"Basic\""
