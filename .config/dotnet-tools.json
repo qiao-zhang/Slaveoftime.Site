@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "tailwindcss.cli": {
+      "version": "3.2.1",
+      "commands": [
+        "tailwindcss"
+      ]
+    },
+    "fun.blazor.cli": {
+      "version": "2.1.2",
+      "commands": [
+        "fun-blazor"
+      ]
+    }
+  }
+}

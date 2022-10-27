@@ -18,16 +18,7 @@ This project will pull a public github repos and find any .md files which contai
 
 ## How to develop
 
-    - cd to ./Slaveoftime.Site
+    dotnet fsi build.fsx -p dev
 
-    - pnpm install
-    - pnpm run watch-css
-
-    - open a new terminal and run:
-    - fun-blazor watch .\Slaveoftime.Site.fsproj
-
-    - open a new terminal and run:
-    - dotnet run
-
-    > require: dotnet tool install --global Fun.Blazor.Cli --version 2.0.0
+    > require dotnet sdk 6
     

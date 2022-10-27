@@ -4,8 +4,10 @@ module Slaveoftime.UI.Hooks
 open System
 open System.IO
 open System.Linq
+open FSharp.Data.Adaptive
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Caching.Memory
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open Fun.Result
@@ -13,84 +15,108 @@ open Fun.Blazor
 open Slaveoftime.Db
 
 
+type IShareStore with
+
+    member store.Header = store.CreateCVal(nameof store.Header, "")
+    member store.Keywords = store.CreateCVal(nameof store.Keywords, "")
+    member store.IsPrerendering = store.CreateCVal(nameof store.IsPrerendering, false)
+
+
+type PostWithContent = { Post: Post; PostContent: string }
+
+
 type IComponentHook with
 
-    member hook.TryLoadPosts(page) =
-        task {
-            let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.TryLoadPosts)
-            let store = sp.GetService<IGlobalStore>()
+    member hook.ShareStore = hook.ServiceProvider.GetService<IShareStore>()
+    member hook.GlobalStore = hook.ServiceProvider.GetService<IGlobalStore>()
 
-            let postsStore = store.UsePosts(page)
 
-            match postsStore.Value with
-            | DeferredState.Loading -> ()
-            | DeferredState.Loaded x when x.ExpireDate > DateTime.Now -> ()
-            | _ ->
-                try
-                    logger.LogInformation $"Load post from db: {page}"
-                    let db = sp.GetService<SlaveoftimeDb>()
-                    let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToArrayAsync() |> Task.map Array.toList
-                    postsStore.Publish(DeferredState.Loaded { ExpireDate = DateTime.Now.AddMinutes 5; Posts = posts })
-                    logger.LogInformation $"Loaded post from db: {page}"
-                with
-                    | ex -> logger.LogError $"Load posts failed for page {page}: {ex.Message}"
+    member hook.GetPosts() =
+        let memoryCache, db = hook.ServiceProvider.GetMultipleServices<IMemoryCache * SlaveoftimeDb>()
+
+        let cacheKey = "posts"
+
+        let getter (entry: ICacheEntry) = task {
+            let query = db.Posts.OrderByDescending(fun x -> x.CreatedTime)
+
+            let! result =
+                if hook.ShareStore.IsPrerendering.Value then
+                    query.ToList() |> Seq.toList |> Task.retn
+                else
+                    query.ToListAsync() |> Task.map Seq.toList
+
+            entry.SetValue(result).SetSlidingExpiration(TimeSpan.FromMinutes 5) |> ignore
+
+            return result
         }
 
-
-    member hook.TryLoadPost(postId: Guid) =
-        task {
-            let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.TryLoadPost)
-            let store = sp.GetService<IGlobalStore>()
-            let postStore = store.UsePost postId
-
-            match postStore.Value with
-            | DeferredState.Loading -> ()
-            | DeferredState.Loaded x when x.ExpireDate > DateTime.Now -> ()
-            | _ ->
-                try
-                    logger.LogInformation $"Load post detail from db: {postId}"
-                    let db = sp.GetService<SlaveoftimeDb>()
-                    let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
-
-                    if post <> null then
-                        let host = sp.GetService<IHostEnvironment>()
-                        let file = Path.Combine(host.ContentRootPath, "wwwroot", postId.ToString(), "index.html")
-                        let fileContent = File.ReadAllText file
-                        postStore.Publish(
-                            DeferredState.Loaded
-                                {
-                                    ExpireDate = DateTime.Now.AddMinutes 5
-                                    Post = post
-                                    PostContent = fileContent
-                                }
-                        )
-                        logger.LogInformation $"Loaded post detail from db: {postId}"
-                    else
-                        postStore.Publish(DeferredState.LoadFailed "Not Found")
-                        logger.LogInformation $"Load post detail from db failed: not found {postId}"
-                with
-                    | ex ->
-                        logger.LogError $"Load Post failed for {postId}: {ex.Message}"
-                        postStore.Publish(DeferredState.LoadFailed ex.Message)
-        }
+        if hook.ShareStore.IsPrerendering.Value then
+            memoryCache.GetOrCreate(cacheKey, (fun entry -> getter(entry).Result)) |> LoadingState.Loaded |> AVal.constant
+        else
+            memoryCache.GetOrCreateAsync(cacheKey, getter) |> Task.map LoadingState.Loaded |> AVal.ofTask LoadingState.Loading
 
 
-    member hook.IncreaseViewCount(postId: Guid) =
-        task {
-            let sp = hook.ServiceProvider.CreateScope().ServiceProvider
-            let logger = sp.GetService<ILoggerFactory>().CreateLogger(nameof hook.IncreaseViewCount)
+    member hook.GetPostDetail(postId: Guid) =
+        let memoryCache, logFactory = hook.ServiceProvider.GetMultipleServices<IMemoryCache * ILoggerFactory>()
+
+        let logger = logFactory.CreateLogger(nameof hook.GetPostDetail)
+        let cackeKey = $"post-detail-{postId}"
+
+        let getter (entry: ICacheEntry) = task {
             try
-                logger.LogInformation "Increasing view count"
-                
-                let db = sp.GetService<SlaveoftimeDb>()
-                let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
+                logger.LogInformation $"Load post detail from db: {postId}"
 
-                if post <> null then
-                    post.ViewCount <- post.ViewCount + 1
+                let host = hook.ServiceProvider.GetService<IHostEnvironment>()
+                let file = Path.Combine(host.ContentRootPath, "wwwroot", postId.ToString(), "index.html")
+                let fileContent = File.ReadAllText file
+
+                logger.LogInformation $"Loaded post detail from db: {postId}"
+
+                entry.SetValue(fileContent).SetSlidingExpiration(TimeSpan.FromMinutes 5) |> ignore
+                return LoadingState.Loaded(Some fileContent)
+
+            with ex ->
+                logger.LogError(ex, "Get post detail failed")
+                return LoadingState.Loaded None
+        }
+
+        adaptive {
+            match! hook.GetPosts() with
+            | LoadingState.NotStartYet -> return LoadingState.NotStartYet
+
+            | LoadingState.Loaded posts
+            | LoadingState.Reloading posts ->
+                let post = posts |> List.tryFind (fun x -> x.Id = postId)
+                match post with
+                | None -> return LoadingState.Loaded None
+                | Some post ->
+                    let makeResult = LoadingState.map (Option.map (fun content -> { Post = post; PostContent = content }))
+                    if hook.ShareStore.IsPrerendering.Value then
+                        return memoryCache.GetOrCreate(cackeKey, (fun entry -> getter(entry).Result)) |> makeResult
+                    else
+                        let! content = memoryCache.GetOrCreateAsync(cackeKey, getter) |> AVal.ofTask LoadingState.Loading
+                        return makeResult content
+
+            | LoadingState.Loading -> return LoadingState.Loading
+        }
+
+
+    member hook.IncreaseViewCount(poseId) =
+        let memoryCache, db, logFactory = hook.ServiceProvider.GetMultipleServices<IMemoryCache * SlaveoftimeDb * ILoggerFactory>()
+        let logger = logFactory.CreateLogger(nameof hook.IncreaseViewCount)
+
+        task {
+            try
+                let! doc = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = poseId)
+
+                if doc <> null then
+                    doc.ViewCount <- doc.ViewCount + 1
                     do! db.SaveChangesAsync() |> Task.map ignore
-                    logger.LogInformation "Increased view count"
-            with
-                | ex -> logger.LogError $"Increase view count failed for blog {postId}: {ex.Message}"
+
+                    match memoryCache.TryGetValue<Post list>("posts") with
+                    | false, _ -> ()
+                    | true, posts -> posts |> List.iter (fun (x: Post) -> if x.Id = poseId then x.ViewCount <- doc.ViewCount)
+
+            with ex ->
+                logger.LogError(ex, "Increase view count failed")
         }

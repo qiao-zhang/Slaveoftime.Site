@@ -2,7 +2,19 @@
 [<AutoOpen>]
 module Slaveoftime.UI.Controls
 
+open System.IO
 open Fun.Blazor
+
+
+let inline (</>) x y = Path.Combine(x, y)
+
+
+let lazyStylesheet path = link {
+    href path
+    rel "stylesheet"
+    media "print"
+    "onload", "this.media='all'"
+}
 
 
 let keywords (keywords: string) =
@@ -15,26 +27,6 @@ let keywords (keywords: string) =
     ]
 
 
-let footerSection =
-    footer {
-        class' "flex flex-col justify-center items-center py-10"
-        childContent [
-            p {
-                class' "text-sm text-neutral-400/90"
-                "albertwoo_slaveoftime@hotmail.com"
-            }
-            p {
-                class' "mt-2 text-sm text-teal-500/80 font-semibold"
-                "Powered by ASP.NET Core 6 & Blazor"
-            }
-            p {
-                class' "mt-2 text-sm text-neutral-400/90"
-                "2022-02-14"
-            }
-        ]
-    }
-
-
 let spinner =
     Static.html """
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-yellow-500/90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -44,8 +36,31 @@ let spinner =
     """
 
 
-let loader =
-    div {
-        class' "flex flex-row justify-center my-19"
-        spinner
+let loader = div {
+    class' "flex flex-row justify-center my-19"
+    spinner
+}
+
+
+let reconnectView = fragment {
+    styleElt {
+        childContentRaw
+            """
+#components-reconnect-modal {
+display: none !important;
+}
+#components-reconnect-modal.components-reconnect-show, 
+#components-reconnect-modal.components-reconnect-failed, 
+#components-reconnect-modal.components-reconnect-rejected {
+display: block !important;
+}
+            """
     }
+    Static.html
+        """
+        <div id="components-reconnect-modal" 
+            onclick="document.location.reload()" 
+            class="components-reconnect-hide fixed top-0 h-full w-full bg-white opacity-[0.01]">
+        </div>
+        """
+}
