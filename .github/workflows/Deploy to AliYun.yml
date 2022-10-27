@@ -1,9 +1,9 @@
 name: Bundle and deploy to AliYun
 
 on:
-  # push:
-  #   branches:
-  #     - main
+   push:
+     branches:
+       - main
   release:
     types: [published]
 
