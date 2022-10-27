@@ -1,9 +1,12 @@
 ﻿#nowarn "0020" // remove ignore warning
 
 open System
+open System.Text.Unicode
+open System.Text.Encodings.Web
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.ResponseCompression
 open Microsoft.Extensions.Hosting
+open Microsoft.Extensions.WebEncoders
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open SixLabors.ImageSharp.Web.DependencyInjection
@@ -63,6 +66,7 @@ services.AddResponseCompression(fun option ->
 
 services.AddResponseCaching(fun c -> c.MaximumBodySize <- 1024L * 1024L * 5L)
 services.AddImageSharp()
+services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettings <- new TextEncoderSettings(UnicodeRanges.All))
 
 
 let app = builder.Build()
