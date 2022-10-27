@@ -71,11 +71,8 @@ pipeline "deploy" {
             let siteName = ctx.GetEnvVar "IIS_WEBSITE_NAME"
             let targetDir = ctx.GetEnvVar "WEBSITE_CONTENT_PATH"
 
-            let msdeploy (x: string) =
-                
-                let proc = 
-                    ctx.BuildCommand($"'C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe' {x}")
-                    |> Process.Start
+            let msdeploy (x: string) =            
+                let proc = ctx.BuildCommand($"'C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe' {x}") |> Process.Start
                 proc.WaitForExit()
 
             msdeploy $"-verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp=\"{appName}\",recycleMode=\"StopAppPool\",computerName=\"{host}/msdeploy.axd?site={siteName}\",username=\"{user}\",password=\"{pwd}\",AuthType=\"Basic\""
