@@ -6,6 +6,7 @@ open System
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
+open Microsoft.JSInterop
 
 
 let private postSummary (post: Post) =
@@ -43,12 +44,25 @@ let private postNotFound = div {
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore) ->
-        hook.AddAfterRenderTask(fun _ -> hook.IncreaseViewCount postId)
+    html.inject (fun (hook: IComponentHook, store: IShareStore, js: IJSRuntime) ->
+        let post = hook.GetPostDetail postId
+
+        hook.AddAfterRenderTask(fun _ -> task {
+            hook.AddDisposes [
+                post.AddInstantCallback(function
+                    | LoadingState.Loaded _
+                    | LoadingState.Reloading _ -> js.highlightCode () |> ignore
+                    | _ -> ()
+                )
+            ]
+
+            do! hook.IncreaseViewCount postId
+        })
+
 
         let detail =
             adaptiview () {
-                match! hook.GetPostDetail postId with
+                match! post with
                 | LoadingState.NotStartYet -> html.none
 
                 | LoadingState.Reloading (Some data)
