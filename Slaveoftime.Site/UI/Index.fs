@@ -48,6 +48,7 @@ type Index() =
         fragment {
             doctype "html"
             html' {
+                lang "en"
                 class' "bg-slate-100 dark:bg-slate-900 scrollbar"
                 head {
                     baseUrl "/"
@@ -55,6 +56,10 @@ type Index() =
                     meta {
                         name "viewport"
                         content "width=device-width, initial-scale=1.0"
+                    }
+                    meta {
+                        name "description"
+                        content "This site is my personal blogs, I will try some technology on this site when needed."
                     }
                     link {
                         rel "shortcut icon"
