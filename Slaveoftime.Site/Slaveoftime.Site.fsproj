@@ -3,12 +3,15 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0</TargetFramework>
+		<DefineConstants>HTMX</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="Migrations/*.fs" />
+		<Compile Include="Services\PostService.fs" />
 		<Compile Include="Services\GithubPullingService.fs" />
 		<Compile Include="Services\PullingBackgroundService.fs" />
+		<Compile Include="Controllers\PostController.fs" />
 		<Compile Include="UI\Hooks.fs" />
 		<Compile Include="UI\JsInterop.fs" />
 		<Compile Include="UI\Controls.fs" />
@@ -27,6 +30,7 @@
 		<PackageReference Include="Fun.Blazor.Server" Version="2.1.2" />
 		<PackageReference Include="Fun.Blazor.HotReload" Version="2.1.2" />
 		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="2.1.2" />
+		<PackageReference Include="Fun.Htmx" Version="0.0.5" />
 		<PackageReference Include="Markdig" Version="0.30.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.10" />
 		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />

@@ -31,7 +31,7 @@ type Index() =
         store.IsPrerendering.Publish true
 
         // Just get title and keywords for prerender and SEO
-        let metas = 
+        let metas =
             adaptiview () {
                 let! header' = store.Header
                 title { header' }
@@ -82,7 +82,13 @@ type Index() =
                 }
                 body {
                     appEntry
+
+#if HTMX
+                    script { src "https://unpkg.com/htmx.org@1.8.0" }
+#else
                     script { src "_framework/blazor.server.js" }
+#endif
+
                     script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }

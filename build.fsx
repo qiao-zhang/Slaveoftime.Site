@@ -4,7 +4,7 @@
 #r "nuget: Fake.IO.Zip,5.20.0"
 #r "nuget: BlackFox.Fake.BuildTask,0.1.3"
 #r "nuget: Fun.Result"
-#r "nuget: Fun.Build, 0.2.3"
+#r "nuget: Fun.Build, 0.2.4"
 
 open System
 open System.IO
@@ -52,12 +52,23 @@ pipeline "dev" {
         stage "cmds" {
             paralle
             workingDir serverPath
-            run "dotnet run"
-            run "dotnet fun-blazor watch Slaveoftime.Site.fsproj"
+            stage "blazor" {
+                whenCmdArg "--blazor"
+                run "powershell dotnet run -p:DefineConstants=BLAZOR;DEBUG"
+                run "powershell dotnet fun-blazor watch Slaveoftime.Site.fsproj"
+            }
+            stage "htmx" {
+               whenCmdArg "--htmx"
+               run "powershell dotnet watch run -- -p:DefineConstants=HTMX;DEBUG"
+            }
             run (fun _ -> async {
                 do! Async.Sleep 5000
                 return "dotnet tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --watch"
             })
+            run (fun ctx -> asyncResult {
+                do! Async.Sleep 5000 |> Async.map Ok
+                do! ctx.OpenBrowser "https://localhost:6001"
+            }) 
         }
     }
     runIfOnlySpecified

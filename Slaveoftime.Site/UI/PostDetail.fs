@@ -3,10 +3,12 @@
 module Slaveoftime.UI.PostDetail
 
 open System
+open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
+open Fun.Htmx
 open Slaveoftime.Db
-open Microsoft.JSInterop
+open Slaveoftime.Services
 
 
 let private postSummary (post: Post) =
@@ -44,19 +46,20 @@ let private postNotFound = div {
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore, js: IJSRuntime) ->
+    html.inject (fun (hook: IComponentHook, store: IShareStore, jsRuntime: IJSRuntime, postService: PostService) ->
         let post = hook.GetPostDetail postId
 
         hook.AddAfterRenderTask(fun _ -> task {
             hook.AddDisposes [
-                post.AddInstantCallback(function
+                post.AddInstantCallback(
+                    function
                     | LoadingState.Loaded _
-                    | LoadingState.Reloading _ -> js.highlightCode () |> ignore
+                    | LoadingState.Reloading _ -> jsRuntime.highlightCode () |> ignore
                     | _ -> ()
                 )
             ]
 
-            do! hook.IncreaseViewCount postId
+            do! postService.IncreaseViewCount postId
         })
 
 
@@ -72,6 +75,18 @@ let postDetail (postId: Guid) =
 
                     postSummary data.Post
                     postContent data.PostContent
+
+#if HTMX
+                    div {
+                        hxTrigger (HxTrigger(hxEvt.load))
+                        hxPost $"/api/post/{postId}/viewcount"
+                        hxSwap_none
+                        js
+                            """
+                            window.highlightCode()
+                            """
+                    }
+#endif
 
                 | LoadingState.Loaded None -> postNotFound
 

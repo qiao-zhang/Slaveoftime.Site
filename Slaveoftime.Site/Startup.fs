@@ -41,6 +41,7 @@ services.AddFunBlazorServer()
 services.AddGoogleAnalytics("UA-147730361-1")
 
 services.AddTransient<GithubPoolingService>()
+services.AddTransient<PostService>()
 services.AddHostedService<PullingBackgroundService>()
 
 services.AddResponseCompression(fun option ->
@@ -80,6 +81,7 @@ app.UseResponseCompression()
 app.UseImageSharp()
 app.UseStaticFiles()
 
+app.MapControllers()
 app.MapBlazorHub()
 app.MapFunBlazor(Slaveoftime.UI.Index.page)
 

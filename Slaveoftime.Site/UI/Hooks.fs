@@ -100,24 +100,3 @@ type IComponentHook with
 
             | LoadingState.Loading -> return LoadingState.Loading
         }
-
-
-    member hook.IncreaseViewCount(poseId) =
-        let memoryCache, db, logFactory = hook.ServiceProvider.GetMultipleServices<IMemoryCache * SlaveoftimeDb * ILoggerFactory>()
-        let logger = logFactory.CreateLogger(nameof hook.IncreaseViewCount)
-
-        task {
-            try
-                let! doc = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = poseId)
-
-                if doc <> null then
-                    doc.ViewCount <- doc.ViewCount + 1
-                    do! db.SaveChangesAsync() |> Task.map ignore
-
-                    match memoryCache.TryGetValue<Post list>("posts") with
-                    | false, _ -> ()
-                    | true, posts -> posts |> List.iter (fun (x: Post) -> if x.Id = poseId then x.ViewCount <- doc.ViewCount)
-
-            with ex ->
-                logger.LogError(ex, "Increase view count failed")
-        }
