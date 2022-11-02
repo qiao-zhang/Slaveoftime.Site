@@ -1,5 +1,6 @@
 ﻿// hot-reload
-namespace Slaveoftime.UI
+[<AutoOpen>]
+module Slaveoftime.UI.ViewCount
 
 open System
 open System.Runtime.CompilerServices
@@ -11,13 +12,18 @@ open Fun.Blazor
 open Fun.Blazor.Operators
 
 
-// It will not just display the view count but also increase viewcount.
+let viewCount count = span {
+    class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 mx-3 px-3 py-1"
+    $"View {count}"
+}
+
+
+// Display and increase view count
 [<Extension>]
 type DetailViewCount() as this =
     inherit FunBlazorComponent()
 
     static member CustomElementName = "detail-view-count"
-    static member CustomElement = EltBuilder DetailViewCount.CustomElementName
 
 
     [<Extension>]
@@ -32,16 +38,18 @@ type DetailViewCount() as this =
     [<Parameter>]
     member val ViewCount = 0 with get, set
 
+    [<Inject>]
+    member val PostService = Unchecked.defaultof<PostService> with get, set
 
-    override _.Render() =
-        html.inject (fun (hook: IComponentHook, postService: PostService) ->
-            hook.AddAfterRenderTask(fun _ -> postService.IncreaseViewCount(Guid.Parse this.PostId))
 
-            span {
-                class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 mx-3 px-3 py-1"
-                $"View {this.ViewCount}"
-            }
-        )
+    override _.OnAfterRender firstRender =
+        if firstRender then
+            try
+                this.PostService.IncreaseViewCount(Guid.Parse this.PostId) |> ignore
+            with _ ->
+                ()
+
+    override _.Render() = viewCount this.ViewCount
 
 
 type DetailViewCount'() =

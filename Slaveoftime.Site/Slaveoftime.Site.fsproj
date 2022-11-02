@@ -14,11 +14,10 @@
 		<Compile Include="UI\Hooks.fs" />
 		<Compile Include="UI\JsInterop.fs" />
 		<Compile Include="UI\Controls.fs" />
-		<Compile Include="UI\Navbar.fs" />
 		<Compile Include="UI\ViewCount.fs" />
 		<Compile Include="UI\PostList.fs" />
 		<Compile Include="UI\PostDetail.fs" />
-		<Compile Include="UI\Main.fs" />
+		<Compile Include="UI\App.fs" />
 		<Compile Include="UI\Index.fs" />
 		<Compile Include="Startup.fs" />
 	</ItemGroup>

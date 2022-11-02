@@ -1,34 +1,8 @@
 ﻿[<AutoOpen>]
 module Slaveoftime.UI.JsInterop
 
-open System
-open Microsoft.AspNetCore.Components
 open Microsoft.JSInterop
 open Fun.Blazor
-
-
-type SlChangeEventArgs() =
-    inherit EventArgs()
-
-    member val Value = null with get, set
-
-
-[<EventHandler("onsl-change", typeof<SlChangeEventArgs>, enableStopPropagation = true, enablePreventDefault = true)>]
-[<AbstractClass; Sealed>]
-type EventHandlers = class end
-
-
-let private registerCustomEventsJs =
-    js """
-        Blazor.registerCustomEventType('sl-change', {
-            browserEventName: 'sl-change',
-            createEventArgs: event => {
-                return {
-                    value: event.target.value
-                };
-            }
-        });
-    """
 
 
 let private changeHeadJs =
@@ -60,25 +34,34 @@ let private highlightCode =
     """
 
 
-let dynamicBlazorJs =
-    js """
-        if (!window.isBlazorLoaded) {
-            const customEltScript = document.createElement("script")
-            customEltScript.src = "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"
-            document.body.appendChild(customEltScript)
+let invokeDynamicBlazorJs = js "window.initBlazor()"
 
-            const blazorScript = document.createElement("script")
-            blazorScript.src = "_framework/blazor.server.js"
-            document.body.appendChild(blazorScript)
+let dynamicBlazorJs immediate =
+    fragment {
+        js """
+            window.initBlazor = () => {
+                if (!window.isBlazorLoaded) {
+                    const customEltScript = document.createElement("script")
+                    customEltScript.src = "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"
+                    document.body.appendChild(customEltScript)
 
-            window.isBlazorLoaded = true
-        }
-    """
+                    const blazorScript = document.createElement("script")
+                    blazorScript.src = "_framework/blazor.server.js"
+                    document.body.appendChild(blazorScript)
+
+                    window.isBlazorLoaded = true
+                }
+            }
+        """
+        if immediate then
+            invokeDynamicBlazorJs
+    }
+
+
 
 
 let interopScript =
     fragment {
-        registerCustomEventsJs
         changeHeadJs
         highlightCode
     }

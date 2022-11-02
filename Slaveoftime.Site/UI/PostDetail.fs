@@ -7,7 +7,6 @@ open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
-open Slaveoftime.Services
 
 
 let private postSummary (post: Post) =
@@ -49,7 +48,7 @@ let private postNotFound = div {
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore, jsRuntime: IJSRuntime, postService: PostService) ->
+    html.inject (fun (hook: IComponentHook, store: IShareStore, jsRuntime: IJSRuntime) ->
         let post = hook.GetPostDetail postId
 
         hook.AddAfterRenderTask(fun _ -> task {

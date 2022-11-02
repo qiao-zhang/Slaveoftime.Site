@@ -17,16 +17,6 @@ let lazyStylesheet path = link {
 }
 
 
-let keywords (keywords: string) =
-    div.create [
-        for keyword in keywords.Split [| ','; ';' |] do
-            span {
-                class' "text-xs px-3 py-1 rounded-full mr-2 dark:bg-teal-100/20 bg-teal-200/20 dark:text-neutral-100/80 text-neutral-700/90"
-                keyword
-            }
-    ]
-
-
 let spinner =
     Static.html """
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-yellow-500/90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -44,31 +34,29 @@ let loader = div {
 
 let reconnectView = fragment {
     styleElt {
-        childContentRaw
-            """
+        childContentRaw """
 #components-reconnect-modal {
-display: none !important;
+    display: none !important;
 }
 #components-reconnect-modal.components-reconnect-show, 
 #components-reconnect-modal.components-reconnect-failed, 
 #components-reconnect-modal.components-reconnect-rejected {
-display: block !important;
+    display: block !important;
 }
-            """
-    }
-    Static.html
         """
+    }
+    Static.html """
         <div id="components-reconnect-modal" 
             onclick="document.location.reload()" 
             class="components-reconnect-hide fixed top-0 h-full w-full bg-white opacity-[0.01]">
         </div>
-        """
+    """
 }
 
 
 type CustomEltBuilder(name) =
     inherit EltBuilder(name)
 
-    member _.Run(render: AttrRenderFragment) = html.fragment [ base.Run(render); dynamicBlazorJs ]
+    member _.Run(render: AttrRenderFragment) = html.fragment [ base.Run(render); invokeDynamicBlazorJs ]
 
-    member _.Run(render: NodeRenderFragment) = html.fragment [ base.Run(render); dynamicBlazorJs ]
+    member _.Run(render: NodeRenderFragment) = html.fragment [ base.Run(render); invokeDynamicBlazorJs ]

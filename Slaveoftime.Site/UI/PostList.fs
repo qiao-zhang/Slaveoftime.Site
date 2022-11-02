@@ -2,10 +2,19 @@
 [<AutoOpen>]
 module Slaveoftime.UI.PostList
 
-open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
+
+
+let keywords (keywords: string) =
+    div.create [
+        for keyword in keywords.Split [| ','; ';' |] do
+            span {
+                class' "text-xs px-3 py-1 rounded-full mr-2 dark:bg-teal-100/20 bg-teal-200/20 dark:text-neutral-100/80 text-neutral-700/90"
+                keyword
+            }
+    ]
 
 
 let private postCard (post: Post) = div {
@@ -22,13 +31,10 @@ let private postCard (post: Post) = div {
             class' "text-teal-500/60 text-2xs my-2"
             span { post.CreatedTime.ToString("yyyy-MM-dd") }
             span {
-                class' "pl-3"
-                post.ViewCount
-            }
-            span {
                 class' "pl-3 font-semibold"
                 post.Author
             }
+            viewCount post.ViewCount
         }
         keywords post.Keywords
         p {

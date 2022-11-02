@@ -65,36 +65,24 @@ type Index() =
                         rel "shortcut icon"
                         href "/favicon.ico"
                     }
-                    link {
-                        rel "stylesheet"
-                        media "(prefers-color-scheme:light)"
-                        href "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/themes/light.css"
-                    }
-                    link {
-                        rel "stylesheet"
-                        media "(prefers-color-scheme:dark)"
-                        href "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/themes/dark.css"
-                        "onload", "document.documentElement.classList.add('sl-theme-dark');"
-                    }
                     inlineStyle "css/app-generated.css"
                     inlineStyle "css/prism-night-owl.css"
+                    interopScript
                     metas
                 }
                 body {
 #if HTMX
+                    dynamicBlazorJs false
                     app
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
 #else
+                    dynamicBlazorJs true
                     appEntry
-                    dynamicBlazorJs
                     script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
 #endif
 
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
-                    //Comment this out, because not really used any of its control so far. But plan to use it in the future.
-                    //script { async' true; type' "module"; src "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.68/dist/shoelace.js" }
-                    interopScript
                     reconnectView
 #if DEBUG
                     html.hotReloadJSInterop
