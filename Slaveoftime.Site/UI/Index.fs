@@ -81,15 +81,15 @@ type Index() =
                     metas
                 }
                 body {
-                    appEntry
-
 #if HTMX
+                    app
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
 #else
-                    script { src "_framework/blazor.server.js" }
+                    appEntry
+                    dynamicBlazorJs
+                    script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
 #endif
 
-                    script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
                     //Comment this out, because not really used any of its control so far. But plan to use it in the future.

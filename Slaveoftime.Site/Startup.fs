@@ -14,6 +14,7 @@ open Serilog
 open Serilog.Events
 open Blazor.Analytics
 open Slaveoftime.Db
+open Slaveoftime.UI
 open Slaveoftime.Services
 
 
@@ -36,7 +37,9 @@ services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Sour
 services.AddMemoryCache()
 
 services.AddControllersWithViews()
-services.AddServerSideBlazor()
+services.AddServerSideBlazor(fun options ->
+    options.RootComponents.RegisterViewCount() |> ignore
+)
 services.AddFunBlazorServer()
 services.AddGoogleAnalytics("UA-147730361-1")
 
@@ -81,7 +84,6 @@ app.UseResponseCompression()
 app.UseImageSharp()
 app.UseStaticFiles()
 
-app.MapControllers()
 app.MapBlazorHub()
 app.MapFunBlazor(Slaveoftime.UI.Index.page)
 

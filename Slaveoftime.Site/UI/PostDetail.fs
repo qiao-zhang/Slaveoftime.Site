@@ -6,7 +6,6 @@ open System
 open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
-open Fun.Htmx
 open Slaveoftime.Db
 open Slaveoftime.Services
 
@@ -24,6 +23,10 @@ let private postSummary (post: Post) =
         p {
             class' "text-teal-500/80 text-xs mt-5 text-center"
             post.CreatedTime.ToString("yyyy-MM-dd")
+            DetailViewCount'() {
+                PostId(string post.Id)
+                ViewCount post.ViewCount
+            }
         }
     ]
 
@@ -58,8 +61,6 @@ let postDetail (postId: Guid) =
                     | _ -> ()
                 )
             ]
-
-            do! postService.IncreaseViewCount postId
         })
 
 
@@ -77,15 +78,7 @@ let postDetail (postId: Guid) =
                     postContent data.PostContent
 
 #if HTMX
-                    div {
-                        hxTrigger (HxTrigger(hxEvt.load))
-                        hxPost $"/api/post/{postId}/viewcount"
-                        hxSwap_none
-                        js
-                            """
-                            window.highlightCode()
-                            """
-                    }
+                    js "window.highlightCode()"
 #endif
 
                 | LoadingState.Loaded None -> postNotFound
