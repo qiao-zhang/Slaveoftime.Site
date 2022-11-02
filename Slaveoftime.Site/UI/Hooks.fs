@@ -46,7 +46,7 @@ type IComponentHook with
                     query.ToListAsync() |> Task.map Seq.toList
 
             if result.Length > 0 then
-                entry.SetValue(result).SetSlidingExpiration(TimeSpan.FromMinutes 5) |> ignore
+                entry.SetValue(result).SetSlidingExpiration(TimeSpan.FromDays 1) |> ignore
 
             return result
         }

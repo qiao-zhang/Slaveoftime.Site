@@ -34,30 +34,24 @@ let private highlightCode =
     """
 
 
-let invokeDynamicBlazorJs = js "window.initBlazor()"
+let initBlazorJs = js "window.initBlazor()"
 
-let dynamicBlazorJs immediate =
-    fragment {
-        js """
-            window.initBlazor = () => {
-                if (!window.isBlazorLoaded) {
-                    const customEltScript = document.createElement("script")
-                    customEltScript.src = "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"
-                    document.body.appendChild(customEltScript)
+let lazyBlazorJs =
+    js """
+        window.initBlazor = () => {
+            if (!window.isBlazorLoaded) {
+                const customEltScript = document.createElement("script")
+                customEltScript.src = "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"
+                document.body.appendChild(customEltScript)
 
-                    const blazorScript = document.createElement("script")
-                    blazorScript.src = "_framework/blazor.server.js"
-                    document.body.appendChild(blazorScript)
+                const blazorScript = document.createElement("script")
+                blazorScript.src = "_framework/blazor.server.js"
+                document.body.appendChild(blazorScript)
 
-                    window.isBlazorLoaded = true
-                }
+                window.isBlazorLoaded = true
             }
-        """
-        if immediate then
-            invokeDynamicBlazorJs
-    }
-
-
+        }
+    """
 
 
 let interopScript =

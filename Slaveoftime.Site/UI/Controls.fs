@@ -35,14 +35,14 @@ let loader = div {
 let reconnectView = fragment {
     styleElt {
         childContentRaw """
-#components-reconnect-modal {
-    display: none !important;
-}
-#components-reconnect-modal.components-reconnect-show, 
-#components-reconnect-modal.components-reconnect-failed, 
-#components-reconnect-modal.components-reconnect-rejected {
-    display: block !important;
-}
+            #components-reconnect-modal {
+                display: none !important;
+            }
+            #components-reconnect-modal.components-reconnect-show, 
+            #components-reconnect-modal.components-reconnect-failed, 
+            #components-reconnect-modal.components-reconnect-rejected {
+                display: block !important;
+            }
         """
     }
     Static.html """
@@ -57,6 +57,6 @@ let reconnectView = fragment {
 type CustomEltBuilder(name) =
     inherit EltBuilder(name)
 
-    member _.Run(render: AttrRenderFragment) = html.fragment [ base.Run(render); invokeDynamicBlazorJs ]
+    member _.Run(render: AttrRenderFragment) = html.fragment [ base.Run(render); initBlazorJs ]
 
-    member _.Run(render: NodeRenderFragment) = html.fragment [ base.Run(render); invokeDynamicBlazorJs ]
+    member _.Run(render: NodeRenderFragment) = html.fragment [ base.Run(render); initBlazorJs ]

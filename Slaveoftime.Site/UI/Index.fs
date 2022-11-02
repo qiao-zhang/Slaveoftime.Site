@@ -43,7 +43,7 @@ type Index() =
                 }
             }
 
-        let appEntry = rootComp<Index> ctx RenderMode.ServerPrerendered
+        let appBlazorRoot = rootComp<Index> ctx RenderMode.ServerPrerendered
 
         fragment {
             doctype "html"
@@ -72,21 +72,22 @@ type Index() =
                 }
                 body {
 #if HTMX
-                    dynamicBlazorJs false
+                    lazyBlazorJs
                     app
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
 #else
-                    dynamicBlazorJs true
-                    appEntry
+                    lazyBlazorJs
+                    appBlazorRoot
+                    reconnectView
+                    initBlazorJs
                     script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
+#if DEBUG
+                    html.hotReloadJSInterop
+#endif
 #endif
 
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
-                    reconnectView
-#if DEBUG
-                    html.hotReloadJSInterop
-#endif
                 }
             }
         }
