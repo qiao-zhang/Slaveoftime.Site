@@ -53,13 +53,13 @@ pipeline "dev" {
             paralle
             workingDir serverPath
             stage "blazor" {
-                whenCmdArg "--blazor"
+                whenCmdArg "--blazor" "" "Develop in blazor mode"
                 run "powershell dotnet run -p:DefineConstants=BLAZOR;DEBUG"
                 run "powershell dotnet fun-blazor watch Slaveoftime.Site.fsproj"
             }
-            stage "htmx" {
-               whenCmdArg "--htmx"
-               run "powershell dotnet watch run -- -p:DefineConstants=HTMX;DEBUG"
+            stage "static" {
+               whenCmdArg "--static" "" "Develop in static mode, blazor will server custom elements"
+               run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
             }
             run (fun _ -> async {
                 do! Async.Sleep 5000

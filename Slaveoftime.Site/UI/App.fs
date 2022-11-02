@@ -38,10 +38,10 @@ let private footerSection = footer {
         }
         p {
             class' "mt-2 text-sm text-teal-500/80 font-semibold"
-#if HTMX
-            "Powered by ASP.NET Core 6 & HTMX"
-#else
+#if BLAZOR
             "Powered by ASP.NET Core 6 & Blazor"
+#else
+            "Powered by ASP.NET Core 6"
 #endif
         }
         p {
@@ -69,7 +69,9 @@ let app =
             ]
             footerSection
 
-#if HTMX
+#if BLAZOR
+            html.blazor<Blazor.Analytics.Components.NavigationTracker> ()
+#else
             html.raw
                 """
                 <!-- Google tag (gtag.js) -->
@@ -82,8 +84,6 @@ let app =
                   gtag('config', 'UA-147730361-1');
                 </script>
                 """
-#else
-            html.blazor<Blazor.Analytics.Components.NavigationTracker> ()
 #endif
         }
     )

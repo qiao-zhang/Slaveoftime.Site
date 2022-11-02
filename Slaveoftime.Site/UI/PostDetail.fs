@@ -76,7 +76,7 @@ let postDetail (postId: Guid) =
                     postSummary data.Post
                     postContent data.PostContent
 
-#if HTMX
+#if !BLAZOR
                     js "window.highlightCode()"
 #endif
 

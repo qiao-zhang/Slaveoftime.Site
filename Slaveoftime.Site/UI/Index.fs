@@ -71,11 +71,7 @@ type Index() =
                     metas
                 }
                 body {
-#if HTMX
-                    lazyBlazorJs
-                    app
-                    script { src "https://unpkg.com/htmx.org@1.8.0" }
-#else
+#if BLAZOR
                     lazyBlazorJs
                     appBlazorRoot
                     reconnectView
@@ -84,6 +80,10 @@ type Index() =
 #if DEBUG
                     html.hotReloadJSInterop
 #endif
+#else
+                    lazyBlazorJs
+                    app
+                    script { src "https://unpkg.com/htmx.org@1.8.0" }
 #endif
 
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
