@@ -56,6 +56,7 @@ type Index() =
                 body {
                     CustomElement.lazyBlazorJs "_framework/blazor.server.js"
                     app
+                    reconnectView
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
