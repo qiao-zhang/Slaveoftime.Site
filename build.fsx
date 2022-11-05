@@ -4,7 +4,7 @@
 #r "nuget: Fake.IO.Zip,5.20.0"
 #r "nuget: BlackFox.Fake.BuildTask,0.1.3"
 #r "nuget: Fun.Result"
-#r "nuget: Fun.Build, 0.2.4"
+#r "nuget: Fun.Build, 0.2.5"
 
 open System
 open System.IO
@@ -21,6 +21,7 @@ let publishDir = deployDir </> "publish"
 
 
 type StageContext with
+
     member ctx.MSDeploy(zippedPackageFile: string) = asyncResult {
         let host = ctx.GetEnvVar "IIS_SERVER_COMPUTER_NAME"
         let user = ctx.GetEnvVar "IIS_SERVER_USERNAME"
@@ -58,8 +59,8 @@ pipeline "dev" {
                 run "powershell dotnet fun-blazor watch Slaveoftime.Site.fsproj"
             }
             stage "static" {
-               whenCmdArg "--static" "" "Develop in static mode, blazor will server custom elements"
-               run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
+                whenNot { cmdArg "--blazor" }
+                run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
             }
             run (fun _ -> async {
                 do! Async.Sleep 5000
@@ -68,7 +69,7 @@ pipeline "dev" {
             run (fun ctx -> asyncResult {
                 do! Async.Sleep 5000 |> Async.map Ok
                 do! ctx.OpenBrowser "https://localhost:6001"
-            }) 
+            })
         }
     }
     runIfOnlySpecified

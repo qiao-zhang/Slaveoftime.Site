@@ -5,6 +5,7 @@ open System.IO
 open System.Linq
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Caching.Memory
 open CliWrap
 open Markdig
 open Markdig.Parsers
@@ -13,7 +14,7 @@ open Fun.Result
 open Slaveoftime.Db
 
 
-type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnvironment, db: SlaveoftimeDb) =
+type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnvironment, db: SlaveoftimeDb, cache: IMemoryCache) =
     let (</>) p1 p2 = Path.Combine(p1, p2)
 
     let (<?>) (x: 'T voption) (def: 'T) =
@@ -91,6 +92,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
                 )
             db.Posts.Add(newPost) |> ignore
             db.SaveChanges() |> ignore
+            cache.Remove "posts"
 
         else if post.UpdatedTime < fileInfo.LastWriteTime || not (Directory.Exists targetFolder) then
             processMarkdownFile id file
@@ -100,6 +102,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
             post.CreatedTime <- createTime <?> post.CreatedTime
             post.UpdatedTime <- fileInfo.LastWriteTime
             db.SaveChanges() |> ignore
+            cache.Remove "posts"
 
 
     let processMdFile (file: string) author =
