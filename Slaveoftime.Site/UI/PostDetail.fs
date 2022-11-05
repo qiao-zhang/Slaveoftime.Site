@@ -7,6 +7,7 @@ open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
+open Slaveoftime.Services
 
 
 let private postSummary (post: Post) =
@@ -22,10 +23,10 @@ let private postSummary (post: Post) =
         p {
             class' "text-teal-500/80 text-xs mt-5 text-center"
             post.CreatedTime.ToString("yyyy-MM-dd")
-            DetailViewCount'() {
-                PostId(string post.Id)
-                ViewCount post.ViewCount
-            }
+            CustomElement.create (fun (hook: IComponentHook, postService: PostService) ->
+                hook.AddFirstAfterRenderTask(fun _ -> postService.IncreaseViewCount post.Id)
+                viewCount post.ViewCount
+            )
         }
     ]
 

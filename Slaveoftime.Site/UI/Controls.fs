@@ -52,11 +52,3 @@ let reconnectView = fragment {
         </div>
     """
 }
-
-
-type CustomEltBuilder(name) =
-    inherit EltBuilder(name)
-
-    member _.Run(render: AttrRenderFragment) = html.fragment [ base.Run(render); initBlazorJs ]
-
-    member _.Run(render: NodeRenderFragment) = html.fragment [ base.Run(render); initBlazorJs ]

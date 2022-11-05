@@ -34,26 +34,6 @@ let private highlightCode =
     """
 
 
-let initBlazorJs = js "window.initBlazor()"
-
-let lazyBlazorJs =
-    js """
-        window.initBlazor = () => {
-            if (!window.isBlazorLoaded) {
-                const customEltScript = document.createElement("script")
-                customEltScript.src = "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js"
-                document.body.appendChild(customEltScript)
-
-                const blazorScript = document.createElement("script")
-                blazorScript.src = "_framework/blazor.server.js"
-                document.body.appendChild(blazorScript)
-
-                window.isBlazorLoaded = true
-            }
-        }
-    """
-
-
 let interopScript =
     fragment {
         changeHeadJs

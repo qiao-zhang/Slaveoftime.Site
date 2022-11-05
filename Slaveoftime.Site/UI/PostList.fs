@@ -17,6 +17,12 @@ let keywords (keywords: string) =
     ]
 
 
+let viewCount count = span {
+    class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 mx-3 px-3 py-1"
+    $"View {count}"
+}
+
+
 let private postCard (post: Post) = div {
     class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
     childContent [

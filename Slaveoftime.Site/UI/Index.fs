@@ -72,16 +72,16 @@ type Index() =
                 }
                 body {
 #if BLAZOR
-                    lazyBlazorJs
                     appBlazorRoot
                     reconnectView
-                    initBlazorJs
+                    script { src "_framework/blazor.server.js" }
+                    script { async' true; src "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js" }
                     script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
 #if DEBUG
                     html.hotReloadJSInterop
 #endif
 #else
-                    lazyBlazorJs
+                    CustomElement.lazyBlazorJs "_framework/blazor.server.js"
                     app
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
 #endif
