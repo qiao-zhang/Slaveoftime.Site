@@ -3,7 +3,6 @@
 module Slaveoftime.UI.PostDetail
 
 open System
-open Microsoft.JSInterop
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
@@ -49,20 +48,8 @@ let private postNotFound = div {
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore, jsRuntime: IJSRuntime) ->
+    html.inject (fun (hook: IComponentHook, store: IShareStore) ->
         let post = hook.GetPostDetail postId
-
-        hook.AddAfterRenderTask(fun _ -> task {
-            hook.AddDisposes [
-                post.AddInstantCallback(
-                    function
-                    | LoadingState.Loaded _
-                    | LoadingState.Reloading _ -> jsRuntime.highlightCode () |> ignore
-                    | _ -> ()
-                )
-            ]
-        })
-
 
         let detail =
             adaptiview () {
@@ -76,10 +63,7 @@ let postDetail (postId: Guid) =
 
                     postSummary data.Post
                     postContent data.PostContent
-
-#if !BLAZOR
                     js "window.highlightCode()"
-#endif
 
                 | LoadingState.Loaded None -> postNotFound
 

@@ -2,31 +2,16 @@ namespace Slaveoftime.UI
 
 open System.IO
 open Microsoft.AspNetCore.Http
-open Microsoft.AspNetCore.Mvc.Rendering
 open Microsoft.Extensions.Hosting
 open Fun.Blazor
 
 
 type Index() =
-    inherit FunBlazorComponent()
-
-    override _.Render() =
-#if DEBUG
-        html.hotReloadComp (app, "Slaveoftime.UI.Main.app")
-#else
-        app
-#endif
-
 
     static member page(ctx: HttpContext) =
         let store, env = ctx.RequestServices.GetMultipleServices<IShareStore * IHostEnvironment>()
 
-        let inlineStyle filePath =
-#if DEBUG
-            stylesheet filePath
-#else
-            styleElt { childContentRaw (File.ReadAllText(env.ContentRootPath </> "wwwroot" </> filePath)) }
-#endif
+        let inlineStyle filePath = styleElt { childContentRaw (File.ReadAllText(env.ContentRootPath </> "wwwroot" </> filePath)) }
 
         store.IsPrerendering.Publish true
 
@@ -42,8 +27,6 @@ type Index() =
                     content keywords'
                 }
             }
-
-        let appBlazorRoot = rootComp<Index> ctx RenderMode.ServerPrerendered
 
         fragment {
             doctype "html"
@@ -71,21 +54,9 @@ type Index() =
                     metas
                 }
                 body {
-#if BLAZOR
-                    appBlazorRoot
-                    reconnectView
-                    script { src "_framework/blazor.server.js" }
-                    script { async' true; src "_content/Microsoft.AspNetCore.Components.CustomElements/BlazorCustomElements.js" }
-                    script { async' true; src "_content/Blazor-Analytics/blazor-analytics.js" }
-#if DEBUG
-                    html.hotReloadJSInterop
-#endif
-#else
                     CustomElement.lazyBlazorJs "_framework/blazor.server.js"
                     app
                     script { src "https://unpkg.com/htmx.org@1.8.0" }
-#endif
-
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                     script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
                 }

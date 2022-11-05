@@ -7,12 +7,6 @@
       "commands": [
         "tailwindcss"
       ]
-    },
-    "fun.blazor.cli": {
-      "version": "2.1.2",
-      "commands": [
-        "fun-blazor"
-      ]
     }
   }
 }

@@ -53,15 +53,7 @@ pipeline "dev" {
         stage "cmds" {
             paralle
             workingDir serverPath
-            stage "blazor" {
-                whenCmdArg "--blazor" "" "Develop in blazor mode"
-                run "powershell dotnet run -p:DefineConstants=BLAZOR;DEBUG"
-                run "powershell dotnet fun-blazor watch Slaveoftime.Site.fsproj"
-            }
-            stage "static" {
-                whenNot { cmdArg "--blazor" }
-                run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
-            }
+            run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
             run (fun _ -> async {
                 do! Async.Sleep 5000
                 return "dotnet tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --watch"
