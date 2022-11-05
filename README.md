@@ -18,7 +18,7 @@ This project will pull a public github repos and find any .md files which contai
 
 ## How to develop
 
-    dotnet fsi build.fsx -p dev --htmx
+    dotnet fsi build.fsx -- -h
 
     > require dotnet sdk 6
     
