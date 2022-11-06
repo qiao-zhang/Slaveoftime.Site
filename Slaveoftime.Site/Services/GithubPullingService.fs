@@ -92,7 +92,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
                 )
             db.Posts.Add(newPost) |> ignore
             db.SaveChanges() |> ignore
-            cache.Remove "posts"
+            cache.Remove PostService.PostsCacheKey
 
         else if post.UpdatedTime < fileInfo.LastWriteTime || not (Directory.Exists targetFolder) then
             processMarkdownFile id file
@@ -102,7 +102,7 @@ type GithubPoolingService(loger: ILogger<GithubPoolingService>, env: IHostEnviro
             post.CreatedTime <- createTime <?> post.CreatedTime
             post.UpdatedTime <- fileInfo.LastWriteTime
             db.SaveChanges() |> ignore
-            cache.Remove "posts"
+            cache.Remove PostService.PostsCacheKey
 
 
     let processMdFile (file: string) author =

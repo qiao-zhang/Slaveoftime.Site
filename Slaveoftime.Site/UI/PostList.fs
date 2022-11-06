@@ -5,6 +5,7 @@ module Slaveoftime.UI.PostList
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
+open Slaveoftime.Services
 
 
 let keywords (keywords: string) =
@@ -52,29 +53,23 @@ let private postCard (post: Post) = div {
 
 
 let postList =
-    html.inject (fun (store: IShareStore, hook: IComponentHook) ->
+    html.inject (fun (store: IShareStore, postService: PostService) ->
         store.Header.Publish "slaveOftime blogs"
         store.Keywords.Publish "slaveoftime,fsharp,csharp,typescript,dotnet,frontend,backend"
 
-        // Declare more fragment for better readability
-        let cards =
-            adaptiview () {
-                match! hook.GetPosts() with
-                | LoadingState.Reloading posts
-                | LoadingState.Loaded posts ->
-                    if posts.Length = 0 then
-                        div { 
-                            class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
-                            "No posts are found"
-                        }
-                    else
-                        for post in posts do
-                            postCard post
-                | _ -> loader
-            }
+        let posts = postService.GetPosts() |> Task.runSynchronously
 
         div {
             class' "sm:w-5/6 md:w-3/4 max-w-[720px] m-auto min-h-[500px]"
-            cards
+            childContent [
+                if posts.Length = 0 then
+                    div {
+                        class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
+                        "No posts are found"
+                    }
+                else
+                    for post in posts do
+                        postCard post
+            ]
         }
     )

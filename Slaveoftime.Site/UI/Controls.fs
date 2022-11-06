@@ -32,9 +32,13 @@ let loader = div {
 }
 
 
-let reconnectView = fragment {
-    styleElt {
-        childContentRaw """
+let reconnectView =
+    Static.html """
+        <div id="components-reconnect-modal" 
+            onclick="document.location.reload()" 
+            class="components-reconnect-hide fixed top-0 h-full w-full bg-white opacity-[0.01]">
+        </div>
+        <style>
             #components-reconnect-modal {
                 display: none !important;
             }
@@ -43,12 +47,5 @@ let reconnectView = fragment {
             #components-reconnect-modal.components-reconnect-rejected {
                 display: block !important;
             }
-        """
-    }
-    Static.html """
-        <div id="components-reconnect-modal" 
-            onclick="document.location.reload()" 
-            class="components-reconnect-hide fixed top-0 h-full w-full bg-white opacity-[0.01]">
-        </div>
+        </style>
     """
-}

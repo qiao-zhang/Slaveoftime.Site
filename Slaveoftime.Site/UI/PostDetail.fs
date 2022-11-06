@@ -48,31 +48,29 @@ let private postNotFound = div {
 
 
 let postDetail (postId: Guid) =
-    html.inject (fun (hook: IComponentHook, store: IShareStore) ->
-        let post = hook.GetPostDetail postId
+    html.inject (fun (postService: PostService, store: IShareStore) ->
+        let post = postService.GetPost postId |> Task.runSynchronously
 
-        let detail =
-            adaptiview () {
-                match! post with
-                | LoadingState.NotStartYet -> html.none
-
-                | LoadingState.Reloading (Some data)
-                | LoadingState.Loaded (Some data) ->
+        div {
+            class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto"
+            childContent [
+                match post with
+                | Ok data ->
                     store.Header.Publish data.Post.Title
                     store.Keywords.Publish data.Post.Keywords
 
                     postSummary data.Post
                     postContent data.PostContent
-                    js "window.highlightCode()"
 
-                | LoadingState.Loaded None -> postNotFound
+                    js "
+                        if (!!Prism) {
+                            Prism.highlightAll();
+                        } else {
+                            setTimeout(Prism.highlightAll, 5000)
+                        }
+                    "
 
-                | _ -> loader
-            }
-
-
-        div {
-            class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto"
-            detail
+                | Error _ -> postNotFound
+            ]
         }
     )

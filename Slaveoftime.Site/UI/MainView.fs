@@ -1,6 +1,6 @@
 // hot-reload
 [<AutoOpen>]
-module Slaveoftime.UI.Main
+module Slaveoftime.UI.MainView
 
 open Fun.Blazor
 open Fun.Blazor.Router
@@ -47,15 +47,8 @@ let private footerSection = footer {
 }
 
 
-let app = div {
-    navbar
-    html.route [ 
-        routeCif "/blog/%O" postDetail
-        routeAny postList
-    ]
-    footerSection
-    html.raw
-        """
+let private analytics =
+    Static.html """
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147730361-1"></script>
         <script>
@@ -65,5 +58,15 @@ let app = div {
 
             gtag('config', 'UA-147730361-1');
         </script>
-        """
+    """
+
+
+let mainView = div {
+    navbar
+    html.route [ 
+        routeCif "/blog/%O" postDetail
+        routeAny postList
+    ]
+    footerSection
+    analytics
 }
