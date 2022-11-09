@@ -52,7 +52,7 @@ let postDetail (postId: Guid) =
         let post = postService.GetPost postId |> Task.runSynchronously
 
         div {
-            class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto"
+            class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
             childContent [
                 match post with
                 | Ok data ->
@@ -63,10 +63,17 @@ let postDetail (postId: Guid) =
                     postContent data.PostContent
 
                     js "
-                        if (!!Prism) {
-                            Prism.highlightAll();
+                        if (typeof Prism === 'undefined') {
+                            setTimeout(() => Prism.highlightAll(), 4000)
                         } else {
-                            setTimeout(Prism.highlightAll, 5000)
+                            Prism.highlightAll();
+                        }
+                    "
+                    js "
+                        if (typeof Zoom === 'undefined') {
+                            setTimeout(() => Zoom('.post-detail img'), 4000)
+                        } else {
+                            Zoom('.post-detail img')
                         }
                     "
 

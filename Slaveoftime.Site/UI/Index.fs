@@ -50,6 +50,7 @@ let page (ctx: HttpContext) =
                 mainView
                 reconnectView
                 // script { async' true; src "https://unpkg.com/htmx.org@1.8.0" }
+                script { async' true; src "zoom.js" }
                 script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                 script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
             }
