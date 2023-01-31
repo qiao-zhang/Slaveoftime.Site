@@ -29,7 +29,10 @@ type PostDetail =
                     html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
                     html.customElement<ViewCount>(
                         preRender = true,
-                        attrs = (nameof Unchecked.defaultof<ViewCount>.count => post.ViewCount)
+                        attrs = (
+                            (nameof Unchecked.defaultof<ViewCount>.post_id => post.Id.ToString())
+                            ==> (nameof Unchecked.defaultof<ViewCount>.count => post.ViewCount)
+                        )
                     )
                 ]
             }

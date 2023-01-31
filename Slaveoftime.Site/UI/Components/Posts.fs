@@ -3,6 +3,7 @@
 namespace Slaveoftime.UI.Components
 
 open System
+open System.Linq
 open Microsoft.EntityFrameworkCore
 open Microsoft.AspNetCore.Components
 open Fun.Result
@@ -50,16 +51,21 @@ type PostViews =
 type ViewCount () =
     inherit FunBlazorComponent()
 
+    [<Parameter>] member val post_id = "" with get, set
     [<Parameter>] member val count = 0 with get, set
 
     override this.Render() =
         html.inject (fun (db: SlaveoftimeDb, hook: IComponentHook) ->
             hook.AddFirstAfterRenderTask(fun _ -> task {
-                do! 
-                    db.Posts.ExecuteUpdateAsync(fun setter -> 
-                        setter.SetProperty((fun x -> x.ViewCount), (fun x -> x.ViewCount + 1))
-                    )
-                    |> Task.map ignore
+                match Guid.TryParse(this.post_id) with
+                | true, postId ->
+                    do! 
+                        db.Posts.Where(fun x -> x.Id = postId).ExecuteUpdateAsync(fun setter -> 
+                            setter.SetProperty((fun x -> x.ViewCount), (fun x -> x.ViewCount + 1))
+                        )
+                        |> Task.map ignore
+                | _ ->
+                    ()
             })
 
             PostViews.ViewCount(this.count)

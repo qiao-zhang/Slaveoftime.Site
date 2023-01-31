@@ -960,6 +960,12 @@ html {
   }
 }
 
+.card.compact .card-body {
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
 @keyframes checkmark {
   0% {
     background-position-y: 5px;
@@ -987,6 +993,14 @@ html {
 .link:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;
+}
+
+.menu.compact li > a,
+      .menu.compact li > span {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .mockup-phone .display {
