@@ -3,9 +3,7 @@ name: Bundle and deploy to AliYun
 on:
   push:
     branches:
-    - main
-  release:
-    types: [published]
+    - woo
 
 jobs:
   bundle-and-deploy:

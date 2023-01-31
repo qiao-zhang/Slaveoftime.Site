@@ -13,6 +13,8 @@ public class Post
     public int ViewCount { get; set; }
     public string Author { get; set; }
     public bool IsActive { get; set; }
+    public bool IsDynamic { get; set; }
+    public string ContentPath { get; set; }
 
     public DateTime UpdatedTime { get; set; }
     public DateTime CreatedTime { get; set; }

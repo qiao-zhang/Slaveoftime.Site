@@ -1,29 +1,33 @@
 ﻿#nowarn "0020" // remove ignore warning
 
 open System
+open System.IO
 open System.Text.Unicode
 open System.Text.Encodings.Web
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.ResponseCompression
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.WebEncoders
+open Microsoft.Extensions.FileProviders
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open SixLabors.ImageSharp.Web.DependencyInjection
+open Giraffe
 open Serilog
 open Serilog.Events
-open Blazor.Analytics
+open Slaveoftime
 open Slaveoftime.Db
-open Slaveoftime.Services
+open Slaveoftime.UI.Components
+open Slaveoftime.UI.Pages
 
 
 Log.Logger <-
     LoggerConfiguration()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .WriteTo.File("./logs/sites.log", rollOnFileSizeLimit = true, fileSizeLimitBytes = 1024L * 1024L * 5L, retainedFileCountLimit = 20)
-            .CreateLogger()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File("./logs/sites.log", rollOnFileSizeLimit = true, fileSizeLimitBytes = 1024L * 1024L * 5L, retainedFileCountLimit = 20)
+        .CreateLogger()
 
 
 let builder = WebApplication.CreateBuilder(Environment.GetCommandLineArgs())
@@ -32,37 +36,36 @@ let services = builder.Services
 
 host.UseSerilog()
 
+services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettings <- new TextEncoderSettings(UnicodeRanges.All))
 services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Source=Slaveofitme.db") |> ignore)
 services.AddMemoryCache()
 
 services.AddControllersWithViews()
-services.AddServerSideBlazor(fun options -> options.RootComponents.RegisterForFunBlazor())
+services.AddServerSideBlazor(fun options ->
+    // TODO: use reflection
+    options.RootComponents.RegisterCustomElementForFunBlazor<ViewCount>()
+    options.RootComponents.RegisterCustomElementForFunBlazor<Posts.Demo2.Demo22Counter>()
+)
 services.AddFunBlazorServer()
-services.AddGoogleAnalytics("UA-147730361-1")
-
-services.AddTransient<GithubPoolingService>()
-services.AddTransient<PostService>()
-services.AddHostedService<PullingBackgroundService>()
 
 services.AddResponseCompression(fun option ->
     option.Providers.Add<BrotliCompressionProvider>()
     option.Providers.Add<GzipCompressionProvider>()
     option.EnableForHttps <- true
-    option.MimeTypes <-
-        [|
-            "text/plain"
-            "text/css"
-            "text/html"
-            "text/xml"
-            "text/json"
-            "application/javascript"
-            "image/*"
-            "image/png"
-            "image/jpeg"
-            "image/svg+xml"
-            "font/woff2"
-            "image/x-icon"
-        |]
+    option.MimeTypes <- [|
+        "text/plain"
+        "text/css"
+        "text/html"
+        "text/xml"
+        "text/json"
+        "application/javascript"
+        "image/*"
+        "image/png"
+        "image/jpeg"
+        "image/svg+xml"
+        "font/woff2"
+        "image/x-icon"
+    |]
 )
 
 services.AddResponseCaching(fun c -> c.MaximumBodySize <- 1024L * 1024L * 5L)
@@ -73,16 +76,21 @@ services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettin
 let app = builder.Build()
 
 let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
-let db = scope.ServiceProvider.GetService<SlaveoftimeDb>()
-db.Database.Migrate()
+scope.ServiceProvider.MigrateDb()
 
 app.UseResponseCaching()
 app.UseResponseCompression()
+
 app.UseImageSharp()
+
 app.UseStaticFiles()
+app.UseStaticFiles(
+    StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
+)
+
+app.UseGiraffe(Slaveoftime.UI.Pages.Routes.uiRoutes)
 
 app.MapBlazorHub()
-app.MapFunBlazor(Slaveoftime.UI.Index.page)
 
 app.Run()
 

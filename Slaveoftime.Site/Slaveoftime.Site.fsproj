@@ -2,37 +2,42 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="Migrations/*.fs" />
-		<Compile Include="Services\PostService.fs" />
-		<Compile Include="Services\GithubPullingService.fs" />
-		<Compile Include="Services\PullingBackgroundService.fs" />
-		<Compile Include="UI\Stores.fs" />
-		<Compile Include="UI\Controls.fs" />
-		<Compile Include="UI\PostList.fs" />
-		<Compile Include="UI\PostDetail.fs" />
-		<Compile Include="UI\MainView.fs" />
-		<Compile Include="UI\Index.fs" />
+		<Compile Include="UI\Components\Common.fs" />
+		<Compile Include="UI\Components\Navbar.fs" />
+		<Compile Include="UI\Components\Footer.fs" />
+		<Compile Include="UI\Components\Layout.fs" />
+		<Compile Include="UI\Components\Posts.fs" />
+		<Compile Include="UI\Components\Markdown.fs" />
+		<None Include="UI\Pages\Posts\**" Exclude="UI\Pages\Posts\**\*.fs">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<Compile Include="UI\Pages\Posts\Demo2\Demo21.fs" />
+		<Compile Include="UI\Pages\Posts\Demo2\Demo22.fs" />
+		<Compile Include="UI\Pages\PostDetail.fs" />
+		<Compile Include="UI\Pages\PostList.fs" />
+		<Compile Include="UI\Pages\Routes.fs" />
+		<Compile Include="DbCheck.fs" />
 		<Compile Include="Startup.fs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Blazor-Analytics" Version="3.11.0" />
-		<PackageReference Include="CliWrap" Version="3.5.0" />
-		<PackageReference Include="EntityFrameworkCore.FSharp" Version="6.0.7" />
-		<PackageReference Include="Fun.Blazor.CustomElements" Version="0.0.2" />
-		<PackageReference Include="Fun.Blazor.Server" Version="2.1.2" />
-		<PackageReference Include="Fun.Blazor.HotReload" Version="2.1.2" />
-		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="2.1.2" />
-		<PackageReference Include="Fun.Htmx" Version="0.0.5" />
+		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta007" />
+		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta004" />
+		<PackageReference Include="Fun.Blazor.Server" Version="3.0.0-beta002" />
+		<PackageReference Include="Fun.Blazor.HotReload" Version="3.0.0-beta002" />
+		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="3.0.0-beta002" />
+		<PackageReference Include="Fun.Htmx" Version="3.0.0-beta003" />
 		<PackageReference Include="Markdig" Version="0.30.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.CustomElements" Version="0.1.0-alpha.22320.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.10" />
-		<PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
+		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
 		<PackageReference Include="SixLabors.ImageSharp.Web" Version="2.0.2" />
+		<PackageReference Include="YamlDotNet" Version="12.3.1" />
+		<PackageReference Include="Giraffe" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -40,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="FSharp.Core" Version="6.0.6" />
+	  <PackageReference Update="FSharp.Core" Version="7.0.0" />
 	</ItemGroup>
 
 </Project>

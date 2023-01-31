@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Slaveoftime.Db;
 
@@ -10,9 +11,11 @@ using Slaveoftime.Db;
 namespace Slaveoftime.Db.Migrations
 {
     [DbContext(typeof(SlaveoftimeDb))]
-    partial class SlaveoftimeDbModelSnapshot : ModelSnapshot
+    [Migration("20230131053214_AddIsDynamicToPost")]
+    partial class AddIsDynamicToPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.2");
@@ -54,9 +57,6 @@ namespace Slaveoftime.Db.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Author")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ContentPath")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedTime")

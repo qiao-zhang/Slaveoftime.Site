@@ -56,7 +56,7 @@ pipeline "dev" {
             run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
             run (fun _ -> async {
                 do! Async.Sleep 5000
-                return "dotnet tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --watch"
+                return "dotnet tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --watch"
             })
             run (fun ctx -> asyncResult {
                 do! Async.Sleep 5000 |> Async.map Ok
