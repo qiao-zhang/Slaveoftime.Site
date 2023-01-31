@@ -42,7 +42,7 @@ type PostViews =
         ]
 
     static member ViewCount (count: int) = span {
-        class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 mx-3 px-3 py-1"
+        class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 mx-3 px-3 py-1 text-sm"
         $"View {count}"
     }
 

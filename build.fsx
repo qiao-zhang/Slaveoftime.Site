@@ -4,7 +4,7 @@
 #r "nuget: Fake.IO.Zip,5.20.0"
 #r "nuget: BlackFox.Fake.BuildTask,0.1.3"
 #r "nuget: Fun.Result"
-#r "nuget: Fun.Build, 0.2.5"
+#r "nuget: Fun.Build"
 
 open System
 open System.IO
@@ -42,6 +42,10 @@ let checkEnv =
     stage "CheckEnv" {
         run "dotnet tool restore"
         run "dotnet build"
+        stage "server" {
+            workingDir serverPath
+            run "pnpm install"
+        }
     }
 
 
@@ -53,11 +57,8 @@ pipeline "dev" {
         stage "cmds" {
             paralle
             workingDir serverPath
-            run "powershell dotnet watch run -- -p:DefineConstants=DEBUG"
-            run (fun _ -> async {
-                do! Async.Sleep 5000
-                return "dotnet tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --watch"
-            })
+            run "dotnet watch run"
+            run "pnpm tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --watch"
             run (fun ctx -> asyncResult {
                 do! Async.Sleep 5000 |> Async.map Ok
                 do! ctx.OpenBrowser "https://localhost:6001"
@@ -69,10 +70,13 @@ pipeline "dev" {
 
 
 pipeline "deploy" {
+    stage "deploy-env" {
+        run "npm install pnpm -g"
+    }
     checkEnv
     stage "bundle" {
         workingDir serverPath
-        run "dotnet tailwindcss -i ./wwwroot/css/app.css -o ./wwwroot/css/app-generated.css --minify"
+        run "pnpm tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --minify"
         run $"dotnet publish -c Release -o {publishDir}"
     }
     stage "push" {

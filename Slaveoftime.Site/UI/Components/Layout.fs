@@ -28,6 +28,7 @@ type Layout =
             html.fragment [
                 doctype "html"
                 html' {
+                    class' "bg-slate-100 dark:bg-slate-900"
                     head {
                         chartsetUTF8
                         baseUrl "/"
@@ -45,7 +46,7 @@ type Layout =
                         Navbar.Create()
                         defaultArg bodyNode html.none
                         Footer.Create()
-                        script { src "https://unpkg.com/htmx.org@1.8.5" }
+                        // script { src "https://unpkg.com/htmx.org@1.8.5" }
                     }
                 }
             ]

@@ -23,18 +23,20 @@ type PostDetail =
                 class' "text-2xl font-bold text-teal-500/90 mt-5 mx-13 text-center"
                 post.Title
             }
-            p {
-                class' "text-teal-500/80 text-xs mt-5 text-center"
-                post.CreatedTime.ToString("yyyy-MM-dd")
-                html.customElement<ViewCount>(
-                    preRender = true,
-                    attrs = (nameof Unchecked.defaultof<ViewCount>.count => post.ViewCount)
-                )
+            section {
+                class' "text-teal-500/80 text-xs mt-5 text-center flex items-center justify-center"
+                childContent [
+                    html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
+                    html.customElement<ViewCount>(
+                        preRender = true,
+                        attrs = (nameof Unchecked.defaultof<ViewCount>.count => post.ViewCount)
+                    )
+                ]
             }
         ]
 
     static member private PostContent (node: NodeRenderFragment) = section {
-        class' "my-13 px-5 text-slate-900 dark:text-slate-100 scrollbar"
+        class' "my-10 px-5 text-slate-900 dark:text-slate-100"
         article {
             class' "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 max-w-max"
             node
@@ -77,9 +79,9 @@ type PostDetail =
                                 with _ ->
                                     PostDetail.PostNotFound
                             )
-                            script { async' true; src "zoom.js" }
-                            script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
-                            script { async' true; src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
+                            script { src "zoom.js" }
+                            script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
+                            script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
                             js "
                                 Prism.highlightAll();
                                 Zoom('.post-detail img')

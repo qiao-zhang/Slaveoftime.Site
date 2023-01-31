@@ -69,7 +69,7 @@ type DbCheck =
 
                     // Convert post detail
                     file
-                    |> Seq.skip (1 + metaLines.Count())
+                    |> Seq.skip (2 + metaLines.Count())
                     |> String.concat Environment.NewLine
                     |> fun lines -> Markdown.ConvertToHtml(baseUrl, lines)
                     |> fun html -> File.WriteAllText(htmlPath, html)
