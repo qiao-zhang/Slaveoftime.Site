@@ -12,11 +12,11 @@ type Footer =
             }
             p {
                 class' "mt-2 text-sm text-teal-500/80 font-semibold"
-                "Powered by ASP.NET Core 6"
+                "Powered by ASP.NET Core 7"
             }
             p {
                 class' "mt-2 text-sm text-neutral-400/90"
-                "2022-10-31"
+                "2023-01-31"
             }
         ]
     }
