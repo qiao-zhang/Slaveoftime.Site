@@ -12,13 +12,14 @@
 		<Compile Include="UI\Components\Footer.fs" />
 		<Compile Include="UI\Components\Layout.fs" />
 		<Compile Include="UI\Components\Markdown.fs" />
-		<Compile Include="UI\Components\PostView\PostViews.fs" />
+		<Compile Include="UI\Components\PostView\PostView.fs" />
 		<Compile Include="UI\Components\PostView\PostList.fs" />
 		<Compile Include="UI\Components\PostView\PostLikeSurvey.fs" />
 		<Compile Include="UI\Components\PostView\PostViewCount.fs" />
 		<None Include="UI\Pages\Posts\**" Exclude="UI\Pages\Posts\**\*.fs">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<Compile Include="UI\Pages\Posts\A post for describe the post itself\Index.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo21.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo22.fs" />
 		<Compile Include="UI\Pages\PostDetailPage.fs" />

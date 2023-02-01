@@ -21,7 +21,7 @@ type PostList =
                 }
             }
             p {
-                class' "text-teal-500/60 text-xs my-2 flex items-center gap-2"
+                class' "text-teal-500/80 text-xs my-2 flex items-center gap-2"
                 childContent [
                     span { post.CreatedTime.ToString("yyyy-MM-dd") }
                     span {
