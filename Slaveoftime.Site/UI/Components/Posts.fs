@@ -91,19 +91,20 @@ type PostViews =
         html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor) ->
             let ctx = ctx.HttpContext
 
-            let posts =
+            let postsQuery =
                 match ctx.TryGetQueryStringValue("search") with
-                | Some q ->
+                | Some query ->
+                    let query = query.ToLower()
                     db.Posts
                         .Where(fun x -> 
-                            x.Title.ToLower().Contains(q) 
-                            || x.Keywords.ToLower().Contains(q) 
-                            || x.Description.ToLower().Contains(q)
+                            x.Title.ToLower().Contains(query) 
+                            || x.Keywords.ToLower().Contains(query) 
+                            || x.Description.ToLower().Contains(query)
                         )
 
                 | _ -> db.Posts
 
-            let posts = posts.OrderByDescending(fun x -> x.CreatedTime).ToList()
+            let posts = postsQuery.OrderByDescending(fun x -> x.CreatedTime).ToList()
 
             if posts.Count = 0 then
                 div {
