@@ -20,24 +20,6 @@ let deployDir = __SOURCE_DIRECTORY__ </> "deploy"
 let publishDir = deployDir </> "publish"
 
 
-type StageContext with
-
-    member ctx.MSDeploy(zippedPackageFile: string) = asyncResult {
-        let host = ctx.GetEnvVar "IIS_SERVER_COMPUTER_NAME"
-        let user = ctx.GetEnvVar "IIS_SERVER_USERNAME"
-        let pwd = ctx.GetEnvVar "IIS_SERVER_PASSWORD"
-        let appName = ctx.GetEnvVar "RECYCLE_APP_NAME"
-        let siteName = ctx.GetEnvVar "IIS_WEBSITE_NAME"
-        let targetDir = ctx.GetEnvVar "WEBSITE_CONTENT_PATH"
-
-        let msdeploy (x: string) = ctx.RunCommand($"'C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe' {x}")
-
-        do! msdeploy $"-verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp=\"{appName}\",recycleMode=\"StopAppPool\",computerName=\"{host}/msdeploy.axd?site={siteName}\",username=\"{user}\",password=\"{pwd}\",AuthType=\"Basic\""
-        do! msdeploy $"-verb:sync -allowUntrusted -source:package=\"{zippedPackageFile}\" -dest:contentPath=\"{targetDir}\",computerName=\"{host}/msdeploy.axd?site={siteName}\",username=\"{user}\",password=\"{pwd}\",AuthType=\"Basic\" -enableRule:DoNotDeleteRule"
-        do! msdeploy $"-verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp=\"{appName}\",recycleMode=\"StartAppPool\",computerName=\"{host}/msdeploy.axd?site={siteName}\",username=\"{user}\",password=\"{pwd}\",AuthType=\"Basic\""
-    }
-
-
 let checkEnv =
     stage "CheckEnv" {
         run "dotnet tool restore"
@@ -50,6 +32,7 @@ let checkEnv =
 
 
 pipeline "dev" {
+    description "Watch and run related tools and projects"
     checkEnv
     stage "open-tool" {
         paralle
@@ -70,6 +53,7 @@ pipeline "dev" {
 
 
 pipeline "deploy" {
+    description $"Publish to folder: {deployDir}. You can enable deploy to some cloud by yourshelf."
     stage "deploy-env" {
         run "npm install pnpm -g"
     }
@@ -81,14 +65,12 @@ pipeline "deploy" {
     }
     stage "push" {
         whenEnvVar "GITHUB_ACTION"
-        run (fun ctx -> asyncResult {
+        run (fun _ -> asyncResult {
             let packagePath = deployDir </> DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss") + ".zip"
 
             if Directory.Exists deployDir |> not then Shell.mkdir deployDir
 
             !!(publishDir </> "**/*.*") |> Zip.zip publishDir packagePath
-
-            do! ctx.MSDeploy packagePath
         })
     }
     runIfOnlySpecified
