@@ -29,7 +29,6 @@ type PostDetailPage =
                 childContent [
                     html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
                     html.customElement<PostViewCount> (
-                        preRender = true,
                         attrs =
                             ((nameof Unchecked.defaultof<PostViewCount>.post_id => post.Id.ToString())
                              ==> (nameof Unchecked.defaultof<PostViewCount>.count => post.ViewCount))

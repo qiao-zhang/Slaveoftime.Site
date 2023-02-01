@@ -10,7 +10,7 @@ open Slaveoftime.Db
 type PostList =
     
     static member private PostCard (post: Post) = div {
-        class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
+        class' "px-6 py-5 rounded-md bg-gray-600/10 mb-5"
         childContent [
             h2 {
                 class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
