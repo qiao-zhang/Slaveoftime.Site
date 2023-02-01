@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Text.Unicode
 open System.Text.Encodings.Web
+open System.Reflection
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.ResponseCompression
 open Microsoft.Extensions.Hosting
@@ -41,11 +42,7 @@ services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Sour
 services.AddMemoryCache()
 
 services.AddControllersWithViews()
-services.AddServerSideBlazor(fun options ->
-    // TODO: use reflection
-    options.RootComponents.RegisterCustomElementForFunBlazor<ViewCount>()
-    options.RootComponents.RegisterCustomElementForFunBlazor<Posts.Demo2.Demo22Counter>()
-)
+services.AddServerSideBlazor(fun options -> options.RootComponents.RegisterCustomElementForFunBlazor(Assembly.GetExecutingAssembly()))
 services.AddFunBlazorServer()
 
 services.AddResponseCompression(fun option ->

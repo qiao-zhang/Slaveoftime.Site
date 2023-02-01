@@ -46,7 +46,7 @@ type Layout =
                         Navbar.Create()
                         defaultArg bodyNode html.none
                         Footer.Create()
-                        // script { src "https://unpkg.com/htmx.org@1.8.5" }
+                    // script { src "https://unpkg.com/htmx.org@1.8.5" }
                     }
                 }
             ]

@@ -11,8 +11,8 @@
 		<Compile Include="UI\Components\Navbar.fs" />
 		<Compile Include="UI\Components\Footer.fs" />
 		<Compile Include="UI\Components\Layout.fs" />
-		<Compile Include="UI\Components\Posts.fs" />
 		<Compile Include="UI\Components\Markdown.fs" />
+		<Compile Include="UI\Components\Posts.fs" />
 		<None Include="UI\Pages\Posts\**" Exclude="UI\Pages\Posts\**\*.fs">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
@@ -27,9 +27,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta007" />
-		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta004" />
+		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta006" />
 		<PackageReference Include="Fun.Blazor.Server" Version="3.0.0-beta002" />
-		<PackageReference Include="Fun.Blazor.HotReload" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Htmx" Version="3.0.0-beta003" />
 		<PackageReference Include="Markdig" Version="0.30.4" />
