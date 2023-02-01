@@ -3,7 +3,7 @@
 open FSharp.Data.Adaptive
 open System
 open Fun.Blazor
-open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 
 [<FunBlazorCustomElement>]
 type Demo22Counter() =

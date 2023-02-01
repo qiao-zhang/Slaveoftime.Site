@@ -5,9 +5,9 @@ open Giraffe
 open Fun.Blazor
 open Fun.Htmx
 open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 
-
-type PostList =
+type PostListPage =
 
     static member Create() =
         html.inject (fun (ctx: IHttpContextAccessor) ->
@@ -46,7 +46,7 @@ type PostList =
                     progress { class' "progress progress-primary h-2 htmx-indicator" }
                     section {
                         id "post-list"
-                        PostViews.PostList()
+                        PostList.Create()
                     }
                 ]
             }

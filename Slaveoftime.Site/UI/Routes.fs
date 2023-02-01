@@ -5,7 +5,7 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.AspNetCore.Http
 open Giraffe
 open Fun.Blazor
-open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 open Slaveoftime.UI.Pages
 
 
@@ -37,10 +37,10 @@ let uiRoutes: HttpHandler =
     choose [
         // partial views
         subRouteCi "/view" (choose [
-            routeCi "/post-list" >=> View.Build(PostViews.PostList)
+            routeCi "/post-list" >=> View.Build PostList.Create
         ])
         // pages
-        routeCif "/blog/%O" (fun (id: Guid) -> View.Build(PostDetail.Create id))
-        routeCif "/blog/%s" (fun slug -> View.Build(PostDetail.Create slug))
-        routeCi "/" >=> View.Build PostList.Create
+        routeCif "/blog/%O" (fun (id: Guid) -> View.Build(PostDetailPage.Create id))
+        routeCif "/blog/%s" (fun slug -> View.Build(PostDetailPage.Create slug))
+        routeCi "/" >=> View.Build PostListPage.Create
     ]

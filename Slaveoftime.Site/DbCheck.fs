@@ -17,6 +17,7 @@ open YamlDotNet.Serialization.NamingConventions
 open Fun.Blazor
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 
 [<Extension>]
 type DbCheck =

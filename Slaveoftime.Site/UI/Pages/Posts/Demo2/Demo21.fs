@@ -3,6 +3,7 @@
 open System
 open Fun.Blazor
 open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 
 type Demo21 =
     // We will use reflection to find the interface and register to database

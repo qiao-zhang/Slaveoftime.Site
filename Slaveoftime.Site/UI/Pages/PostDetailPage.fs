@@ -9,15 +9,16 @@ open Fun.Blazor
 open Fun.Blazor.Operators
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
+open Slaveoftime.UI.Components.PostView
 
 
-type PostDetail =
+type PostDetailPage =
 
     static member private PostSummary(post: Post) =
         html.fragment [
             div {
                 class' "flex flex-row justify-center mt-10"
-                PostViews.Keywords post.Keywords
+                PostView.Keywords post.Keywords
             }
             h1 {
                 class' "text-2xl font-bold text-teal-500/90 mt-5 mx-13 text-center"
@@ -27,13 +28,13 @@ type PostDetail =
                 class' "text-teal-500/80 text-xs mt-5 text-center flex items-center justify-center gap-2"
                 childContent [
                     html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
-                    html.customElement<ViewCount> (
+                    html.customElement<PostViewCount> (
                         preRender = true,
                         attrs =
-                            ((nameof Unchecked.defaultof<ViewCount>.post_id => post.Id.ToString())
-                             ==> (nameof Unchecked.defaultof<ViewCount>.count => post.ViewCount))
+                            ((nameof Unchecked.defaultof<PostViewCount>.post_id => post.Id.ToString())
+                             ==> (nameof Unchecked.defaultof<PostViewCount>.count => post.ViewCount))
                     )
-                    PostViews.LiksView post.Likes
+                    PostView.LiksView post.Likes
                 ]
             }
         ]
@@ -67,19 +68,19 @@ type PostDetail =
                 bodyNode = div {
                     class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
                     childContent [
-                        PostDetail.PostSummary post
-                        PostDetail.PostContent(
+                        PostDetailPage.PostSummary post
+                        PostDetailPage.PostContent(
                             try
                                 if post.IsDynamic then
                                     match memoryCache.TryGetValue<NodeRenderFragment> $"post-dynamic-{post.Id}" with
                                     | true, node -> node
-                                    | _ -> PostDetail.PostNotFound
+                                    | _ -> PostDetailPage.PostNotFound
                                 else
                                     html.raw (File.ReadAllText post.ContentPath)
                             with _ ->
-                                PostDetail.PostNotFound
+                                PostDetailPage.PostNotFound
                         )
-                        html.customElement<LikesSurvey> (attrs = (nameof Unchecked.defaultof<LikesSurvey>.post_id => post.Id.ToString()))
+                        html.customElement<PostLikesSurvey> (attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
                         script { src "zoom.js" }
                         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
@@ -99,8 +100,8 @@ type PostDetail =
             let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId) |> Option.ofObj
 
             match post with
-            | Some post -> PostDetail.Create post
-            | None -> Layout.Create(bodyNode = PostDetail.PostNotFound)
+            | Some post -> PostDetailPage.Create post
+            | None -> Layout.Create(bodyNode = PostDetailPage.PostNotFound)
         )
 
 
@@ -109,6 +110,6 @@ type PostDetail =
             let post = db.Posts.FirstOrDefault(fun x -> x.Slug = postSlug) |> Option.ofObj
 
             match post with
-            | Some post -> PostDetail.Create post
-            | None -> Layout.Create(bodyNode = PostDetail.PostNotFound)
+            | Some post -> PostDetailPage.Create post
+            | None -> Layout.Create(bodyNode = PostDetailPage.PostNotFound)
         )
