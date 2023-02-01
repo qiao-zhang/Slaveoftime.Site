@@ -24,12 +24,12 @@ let inline lazyStylesheet path = link {
 
 let inline headerKeywords (str: string) = meta {
     name "keywords"
-    value str
+    content str
 }
 
 let inline headerDescription (str: string) = meta {
     name "description"
-    value str
+    content str
 }
 
 

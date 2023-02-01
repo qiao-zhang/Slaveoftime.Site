@@ -28,6 +28,7 @@ type Layout =
             html.fragment [
                 doctype "html"
                 html' {
+                    lang "en"
                     class' "bg-slate-100 dark:bg-slate-900"
                     head {
                         chartsetUTF8
