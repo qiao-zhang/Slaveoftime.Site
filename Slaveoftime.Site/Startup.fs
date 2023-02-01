@@ -45,25 +45,7 @@ services.AddControllersWithViews()
 services.AddServerSideBlazor(fun options -> options.RootComponents.RegisterCustomElementForFunBlazor(Assembly.GetExecutingAssembly()))
 services.AddFunBlazorServer()
 
-services.AddResponseCompression(fun option ->
-    option.Providers.Add<BrotliCompressionProvider>()
-    option.Providers.Add<GzipCompressionProvider>()
-    option.EnableForHttps <- true
-    option.MimeTypes <- [|
-        "text/plain"
-        "text/css"
-        "text/html"
-        "text/xml"
-        "text/json"
-        "application/javascript"
-        "image/*"
-        "image/png"
-        "image/jpeg"
-        "image/svg+xml"
-        "font/woff2"
-        "image/x-icon"
-    |]
-)
+services.AddResponseCompression()
 
 services.AddResponseCaching(fun c -> c.MaximumBodySize <- 1024L * 1024L * 5L)
 services.AddImageSharp()
@@ -85,7 +67,7 @@ app.UseStaticFiles(
     StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
 )
 
-app.UseGiraffe(Slaveoftime.UI.Pages.Routes.uiRoutes)
+app.UseGiraffe(Slaveoftime.UI.Routes.uiRoutes)
 
 app.MapBlazorHub()
 

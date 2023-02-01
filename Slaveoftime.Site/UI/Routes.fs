@@ -1,10 +1,12 @@
-﻿module Slaveoftime.UI.Pages.Routes
+﻿module Slaveoftime.UI.Routes
 
 open System
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.AspNetCore.Http
 open Giraffe
 open Fun.Blazor
+open Slaveoftime.UI.Components
+open Slaveoftime.UI.Pages
 
 
 let cacheFor30Days: HttpHandler = publicResponseCaching (60 * 60 * 24 * 30) None
@@ -33,6 +35,11 @@ type View =
 
 let uiRoutes: HttpHandler =
     choose [
+        // partial views
+        subRouteCi "/view" (choose [
+            routeCi "/post-list" >=> View.Build(PostViews.PostList)
+        ])
+        // pages
         routeCif "/blog/%O" (fun (id: Guid) -> View.Build(PostDetail.Create id))
         routeCif "/blog/%s" (fun slug -> View.Build(PostDetail.Create slug))
         routeCi "/" >=> View.Build PostList.Create

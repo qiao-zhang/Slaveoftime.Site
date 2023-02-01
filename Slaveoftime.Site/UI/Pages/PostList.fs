@@ -1,60 +1,53 @@
 namespace Slaveoftime.UI.Pages
 
-open System.Linq
+open Microsoft.AspNetCore.Http
+open Giraffe
 open Fun.Blazor
-open Slaveoftime.Db
+open Fun.Htmx
 open Slaveoftime.UI.Components
 
 
 type PostList =
 
-    static member private PostCard(post: Post) = div {
-        class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
-        childContent [
-            h2 {
-                class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
-                a {
-                    //href $"blog/{post.Id}?title={post.Title}"
-                    href $"blog/{post.Slug}" // To use slug we have to make sure our title is unique
-                    post.Title
-                }
-            }
-            p {
-                class' "text-teal-500/60 text-xs my-2 flex items-center gap-2"
-                childContent [
-                    span { post.CreatedTime.ToString("yyyy-MM-dd") }
-                    span {
-                        class' "font-semibold"
-                        post.Author
-                    }
-                    PostViews.ViewCount post.ViewCount
-                    PostViews.LiksView post.Likes
-                ]
-            }
-            PostViews.Keywords post.Keywords
-            p {
-                class' "dark:text-neutral-400/90 text-neutral-600/90 mt-2 text-sm"
-                post.Description
-            }
-        ]
-    }
-
-
     static member Create() =
-        html.inject (fun (db: SlaveoftimeDb) ->
-            let posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToList()
+        html.inject (fun (ctx: IHttpContextAccessor) ->
+            let ctx = ctx.HttpContext
 
             let node = div {
                 class' "sm:w-5/6 md:w-3/4 max-w-[720px] m-auto min-h-[500px]"
                 childContent [
-                    if posts.Count = 0 then
+                    div {
+                        class' "flex justify-center mt-5"
                         div {
-                            class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
-                            "No posts are found"
+                            class' "input-group input-group-sm w-auto"
+                            childContent [
+                                input {
+                                    type' InputTypes.text
+                                    name "search"
+                                    value (ctx.TryGetQueryStringValue("search") |> Option.defaultValue "")
+                                    placeholder "Search by title, keywords and description"
+                                    hxTrigger'(hxEvt.keyboard.keyup, changed = true, delayMs = 500)
+                                    hxGet "/view/post-list"
+                                    hxTarget "#post-list"
+                                    hxIndicator ".htmx-indicator"
+                                    class' "input input-bordered"
+                                }
+                                button {
+                                    class' "btn btn-square"
+                                    childContent [
+                                        Static.html """
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        """
+                                    ]
+                                }
+                            ]
                         }
-                    else
-                        for post in posts do
-                            PostList.PostCard post
+                    }
+                    progress { class' "progress progress-primary h-2 htmx-indicator" }
+                    section {
+                        id "post-list"
+                        PostViews.PostList()
+                    }
                 ]
             }
 

@@ -5,8 +5,10 @@ namespace Slaveoftime.UI.Components
 open System
 open System.Linq
 open Microsoft.EntityFrameworkCore
+open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Components
 open FSharp.Data.Adaptive
+open Giraffe
 open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
@@ -52,6 +54,67 @@ type PostViews =
         class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 px-2 text-sm"
         $"Likes {likes}"
     }
+
+    
+    static member PostCard(post: Post) = div {
+        class' "px-6 py-5 rounded-md bg-gray-600/10 my-5"
+        childContent [
+            h2 {
+                class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
+                a {
+                    //href $"blog/{post.Id}?title={post.Title}"
+                    href $"blog/{post.Slug}" // To use slug we have to make sure our title is unique
+                    post.Title
+                }
+            }
+            p {
+                class' "text-teal-500/60 text-xs my-2 flex items-center gap-2"
+                childContent [
+                    span { post.CreatedTime.ToString("yyyy-MM-dd") }
+                    span {
+                        class' "font-semibold"
+                        post.Author
+                    }
+                    PostViews.ViewCount post.ViewCount
+                    PostViews.LiksView post.Likes
+                ]
+            }
+            PostViews.Keywords post.Keywords
+            p {
+                class' "dark:text-neutral-400/90 text-neutral-600/90 mt-2 text-sm"
+                post.Description
+            }
+        ]
+    }
+
+    static member PostList() = 
+        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor) ->
+            let ctx = ctx.HttpContext
+
+            let posts =
+                match ctx.TryGetQueryStringValue("search") with
+                | Some q ->
+                    db.Posts
+                        .Where(fun x -> 
+                            x.Title.ToLower().Contains(q) 
+                            || x.Keywords.ToLower().Contains(q) 
+                            || x.Description.ToLower().Contains(q)
+                        )
+
+                | _ -> db.Posts
+
+            let posts = posts.OrderByDescending(fun x -> x.CreatedTime).ToList()
+
+            if posts.Count = 0 then
+                div {
+                    class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
+                    "No posts are found"
+                }
+            else
+                posts
+                |> Seq.map PostViews.PostCard
+                |> html.fragment
+        )
 
 
 [<FunBlazorCustomElement>]
