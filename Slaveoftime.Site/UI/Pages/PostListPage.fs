@@ -17,7 +17,7 @@ type PostListPage =
                 class' "sm:w-5/6 md:w-3/4 max-w-[720px] m-auto min-h-[500px]"
                 childContent [
                     div {
-                        class' "input-group input-group-xs mt-5"
+                        class' "input-group input-group-xs mt-5 px-5"
                         childContent [
                             input {
                                 type' InputTypes.text

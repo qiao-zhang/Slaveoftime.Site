@@ -25,7 +25,7 @@ type PostDetailPage =
                 post.Title
             }
             section {
-                class' "text-teal-500/80 text-xs mt-5 text-center flex items-center justify-center gap-2"
+                class' "text-teal-6 text-xs mt-5 text-center flex items-center justify-center gap-2"
                 childContent [
                     html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
                     html.customElement<PostViewCount> (
@@ -33,7 +33,8 @@ type PostDetailPage =
                             ((nameof Unchecked.defaultof<PostViewCount>.post_id => post.Id.ToString())
                              ==> (nameof Unchecked.defaultof<PostViewCount>.count => post.ViewCount))
                     )
-                    PostView.LiksView post.Likes
+                    if post.Likes > 0 then
+                        PostView.LiksView post.Likes
                 ]
             }
         ]
@@ -79,7 +80,9 @@ type PostDetailPage =
                             with _ ->
                                 PostDetailPage.PostNotFound
                         )
+                        div { class' "divider" }
                         html.customElement<PostLikesSurvey> (attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
+                        div { class' "divider" }
                         script { src "zoom.js" }
                         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
                         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }

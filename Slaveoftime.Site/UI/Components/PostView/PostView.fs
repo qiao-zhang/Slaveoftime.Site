@@ -29,20 +29,23 @@ type IDynamicPost =
 type PostView =
 
     static member Keywords(keywords: string) =
-        div.create [
-            for keyword in keywords.Split [| ','; ';' |] do
-                span {
-                    class' "text-xs px-3 py-1 rounded-full mr-2 dark:bg-teal-100/20 bg-teal-200/20 dark:text-neutral-100/80 text-neutral-700/90"
-                    keyword
-                }
-        ]
+        div {
+            class' "flex flex-wrap items-center gap-2"
+            childContent [
+                for keyword in keywords.Split [| ','; ';' |] do
+                    span {
+                        class' "badge badge-primary"
+                        keyword
+                    }
+            ]
+        }
 
     static member ViewCount(count: int) = span {
-        class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 px-2 text-sm"
-        $"View {count}"
+        class' "badge badge-accent badge-sm opacity-90"
+        $"Views {count}"
     }
 
     static member LiksView(likes: int) = span {
-        class' "rounded-lg dark:text-neutral-100/90 text-neutral-700/90 bg-teal-500/40 px-2 text-sm"
+        class' "badge badge-accent badge-sm opacity-90"
         $"Likes {likes}"
     }

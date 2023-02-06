@@ -13,23 +13,25 @@ type PostList =
         class' "px-6 py-5 rounded-md bg-gray-600/10 mb-5"
         childContent [
             h2 {
-                class' "text-teal-600/80 hover:text-teal-400 first-letter:text-2xl first-letter:text-teal-400 underline text-xl font-semibold"
+                class' "text-primary/90 hover:text-primary first-letter:text-2xl first-letter:text-primary first-letter:uppercase underline text-xl font-semibold"
                 a {
                     //href $"blog/{post.Id}?title={post.Title}"
                     href $"blog/{post.Slug}" // To use slug we have to make sure our title is unique
                     post.Title
                 }
             }
-            p {
-                class' "text-teal-500/80 text-xs my-2 flex items-center gap-2"
+            section {
+                class' "text-primary/80 text-xs my-2 flex items-center gap-2"
                 childContent [
                     span { post.CreatedTime.ToString("yyyy-MM-dd") }
                     span {
                         class' "font-semibold"
                         post.Author
                     }
-                    PostView.ViewCount post.ViewCount
-                    PostView.LiksView post.Likes
+                    if post.ViewCount > 0 then
+                        PostView.ViewCount post.ViewCount
+                    if post.Likes > 0 then
+                        PostView.LiksView post.Likes
                 ]
             }
             PostView.Keywords post.Keywords
