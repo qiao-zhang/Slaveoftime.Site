@@ -1,8 +1,8 @@
 module Slaveoftime.Feed
 
 open System
-open System.IO
 open System.Xml
+open System.Text
 open System.Linq
 open System.ServiceModel.Syndication
 open Microsoft.EntityFrameworkCore
@@ -48,8 +48,8 @@ let handle feedType: HttpHandler =
         )
 
         let feedXml = 
-            use stringWriter = new StringWriter()
-            use xmlWriter = XmlWriter.Create(stringWriter)
+            let stringWriter = StringBuilder()
+            use xmlWriter = XmlWriter.Create(stringWriter, XmlWriterSettings(Encoding = Encoding.UTF8))
             match feedType with
             | RSS -> Rss20FeedFormatter(feed).WriteTo(xmlWriter)
             | ATOM -> Atom10FeedFormatter(feed).WriteTo(xmlWriter)
