@@ -2230,10 +2230,6 @@ html {
   margin-right: 0.75rem;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
-}
-
 .mt-10 {
   margin-top: 2.5rem;
 }
@@ -2248,6 +2244,10 @@ html {
 
 .mb-5 {
   margin-bottom: 1.25rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
 }
 
 .block {

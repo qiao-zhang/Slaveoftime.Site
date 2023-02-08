@@ -67,7 +67,12 @@ app.UseStaticFiles(
     StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
 )
 
-app.UseGiraffe(Slaveoftime.UI.Routes.uiRoutes)
+app.UseGiraffe(choose [
+    routeCi "/feed" >=> Feed.handle Feed.RSS
+    routeCi "/feed/rss" >=> Feed.handle Feed.RSS
+    routeCi "/feed/atom" >=> Feed.handle Feed.ATOM
+])
+app.UseGiraffe(UI.Routes.uiRoutes)
 
 app.MapBlazorHub()
 
