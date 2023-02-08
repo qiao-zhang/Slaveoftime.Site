@@ -57,6 +57,12 @@ let app = builder.Build()
 let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
 scope.ServiceProvider.MigrateDb()
 
+#if !DEBUG
+app.Lifetime.ApplicationStarted.Register(fun () ->
+    Feed.generateFeedFile scope.ServiceProvider |> ignore
+)
+#endif
+
 app.UseResponseCaching()
 app.UseResponseCompression()
 

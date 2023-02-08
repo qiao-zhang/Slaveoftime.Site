@@ -38,6 +38,7 @@ let uiRoutes: HttpHandler =
         // partial views
         subRouteCi "/view" (choose [
             routeCi "/post-list" >=> View.Build PostList.Create
+            routeCif "/post/%O" (fun (id: Guid) -> View.Build(PostDetail.Create id))
         ])
         // pages
         routeCif "/blog/%O" (fun (id: Guid) -> View.Build(PostDetailPage.Create id))

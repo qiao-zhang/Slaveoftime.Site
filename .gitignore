@@ -370,3 +370,4 @@ deploy/
 /Slaveoftime.Site/wwwroot/f12845e8-0a3f-45a7-8922-6a3980249ec9
 /Slaveoftime.Site/Slaveofitme.db
 /Slaveoftime.Site/UI/Pages/Posts/**/*.html
+/Slaveoftime.Site/feed-*.xml
