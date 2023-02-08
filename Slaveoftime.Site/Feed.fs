@@ -1,6 +1,7 @@
 module Slaveoftime.Feed
 
 open System
+open System.IO
 open System.Xml
 open System.Text
 open System.Linq
@@ -15,6 +16,13 @@ type FeedType = RSS | ATOM
 let handle feedType: HttpHandler =
     fun nxt ctx -> task {
         let db = ctx.GetService<SlaveoftimeDb>()
+        
+        let host =
+            #if DEBUG
+            "https://localhost:6001"
+            #else
+            "https://www.slaveoftime.fun"
+            #endif
 
         let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToListAsync()
 
@@ -22,19 +30,13 @@ let handle feedType: HttpHandler =
             posts
             |> Seq.map (fun post -> 
                 let item = SyndicationItem(
-                    Id = post.Id.ToString(),
+                    Id = Uri($"{host}/blog/{post.Id}").ToString(),
                     Title = TextSyndicationContent post.Title,
                     Summary = TextSyndicationContent post.Description,
-                    BaseUri = 
-                        #if DEBUG
-                        Uri($"https://localhost:6001/blog/{post.Slug}")
-                        #else
-                        Uri($"https://www.slaveoftime.fun/blog/{post.Slug}")
-                        #endif
-                    ,
                     PublishDate = post.CreatedTime,
                     LastUpdatedTime = post.UpdatedTime
                 )
+                item.Links.Add(SyndicationLink(Uri $"{host}/blog/{post.Slug}"))
                 for keyword in post.Keywords.Split([|','; ';'|]) do
                     item.Categories.Add(SyndicationCategory keyword)
                 item
@@ -47,17 +49,20 @@ let handle feedType: HttpHandler =
             Items = items
         )
 
-        let feedXml = 
-            let stringWriter = StringBuilder()
-            use xmlWriter = XmlWriter.Create(stringWriter, XmlWriterSettings(Encoding = Encoding.UTF8))
-            match feedType with
-            | RSS -> Rss20FeedFormatter(feed).WriteTo(xmlWriter)
-            | ATOM -> Atom10FeedFormatter(feed).WriteTo(xmlWriter)
-            xmlWriter.Flush()
-            stringWriter.ToString()
+        feed.Links.Add(SyndicationLink(Uri "https://localhost:6001"))
+    
+        use memoryStream = new MemoryStream()
+        use xmlWriter = XmlWriter.Create(memoryStream, XmlWriterSettings(Encoding = Encoding.UTF8))
+        match feedType with
+        | RSS -> Rss20FeedFormatter(feed).WriteTo(xmlWriter)
+        | ATOM -> Atom10FeedFormatter(feed).WriteTo(xmlWriter)
+        xmlWriter.Flush()
 
-        let! _ = ctx.WriteStringAsync(feedXml)
+        let bytes = memoryStream.ToArray()
+
         ctx.SetHttpHeader(HttpResponseHeaders.ContentType, "application/xml; charset=utf-8")
+        ctx.SetHttpHeader(HttpResponseHeaders.ContentLength, bytes.Length)
+        let! _ = ctx.Response.BodyWriter.WriteAsync(bytes)
         
         return! nxt ctx 
     }
