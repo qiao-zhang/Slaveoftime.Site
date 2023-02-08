@@ -57,7 +57,7 @@ let handle feedType: HttpHandler =
             stringWriter.ToString()
 
         let! _ = ctx.WriteStringAsync(feedXml)
-        ctx.SetHttpHeader(HttpResponseHeaders.ContentType, "application/xml")
+        ctx.SetHttpHeader(HttpResponseHeaders.ContentType, "application/xml; charset=utf-8")
         
         return! nxt ctx 
     }
