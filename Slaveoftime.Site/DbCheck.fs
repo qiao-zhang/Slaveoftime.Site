@@ -78,7 +78,7 @@ type DbCheck =
                 try
                     let metaLines = file |> Seq.skip 1 |> Seq.takeWhile ((<>) "---")
                     // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
-                    let baseUrl = "blog/" + Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/") + "/"
+                    let baseUrl = host + "/blog/" + Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/") + "/"
                     let htmlPath = Path.GetDirectoryName path </> Path.GetFileNameWithoutExtension path + ".html"
 
                     // Parse post meta

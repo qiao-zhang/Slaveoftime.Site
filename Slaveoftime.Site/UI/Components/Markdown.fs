@@ -6,6 +6,7 @@ open Markdig
 open Markdig.Parsers
 open Markdig.Renderers
 open Fun.Blazor
+open Slaveoftime
 
 
 type Markdown =
@@ -41,7 +42,7 @@ type Markdown =
         let ensureEnd (str: string) = if str.EndsWith "/" then relativeSlug else str + "/"
 
         let baseUrl =
-            "blog/"
+            host + "/blog/"
             + (if relativeSlug = "/" then ""
                else if relativeSlug.StartsWith "/" then relativeSlug.Substring(1) |> ensureEnd
                else relativeSlug |> ensureEnd)

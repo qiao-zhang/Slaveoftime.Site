@@ -7,6 +7,7 @@ open Microsoft.Extensions.Caching.Memory
 open Fun.Result
 open Fun.Blazor
 open Fun.Blazor.Operators
+open Slaveoftime
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
 
@@ -38,7 +39,7 @@ type PostDetail =
             if String.IsNullOrEmpty post.MainImage |> not then
                 img {
                     class' "mx-auto object-fill object-center mt-5"
-                    src ($"blog/{post.MainImage}")
+                    src ($"{host}/blog/{post.MainImage}")
                 }
         ]
 
@@ -66,7 +67,7 @@ type PostDetail =
         )
 
     static member private Scripts = fragment {
-        script { src "zoom.js" }
+        script { src $"{host}/zoom.js" }
         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
         script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
         script { src "https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js" }
@@ -134,7 +135,7 @@ type PostDetail =
                     id "post-detail"
                     class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
                     childContent [
-                        stylesheet "css/tailwind-generated.css"
+                        stylesheet $"{host}/css/tailwind-generated.css"
                         PostDetail.PostContent post
                         PostDetail.Scripts
                     ]
