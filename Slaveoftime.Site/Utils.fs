@@ -1,11 +1,15 @@
 [<AutoOpen>]
 module Slaveoftime.Utils
 
+open System
 open System.IO
 open System.Reflection
 
 
-let inline (</>) x y = Path.Combine(x, y)
+let inline (</>) x y = 
+    let x = if String.IsNullOrEmpty x then "" else x
+    let y = if String.IsNullOrEmpty y then "" else y
+    Path.Combine(x, y)
 
 
 let inline (<?>) (x: 'T voption) (def: 'T) =

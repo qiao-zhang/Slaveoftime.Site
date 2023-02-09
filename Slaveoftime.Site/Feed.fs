@@ -35,32 +35,34 @@ let generateFeedFile (sp: IServiceProvider) = task {
 
     let items = Collections.Generic.List()
     for post in posts do
-        let item = SyndicationItem(
-            Id = post.Id.ToString(),
-            BaseUri = Uri host,
-            Title = TextSyndicationContent post.Title,
-            PublishDate = post.CreatedTime,
-            LastUpdatedTime = post.UpdatedTime
-        )
-
-        item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
-
-        let mainImageFile = FileInfo(postsDir </> post.MainImage)
-        if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
-            item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
-        
-        if String.IsNullOrEmpty post.Keywords |> not then
-            for keyword in post.Keywords.Split([|','; ';'|]) do
-                item.Categories.Add(SyndicationCategory keyword)
-
         try
+            let item = SyndicationItem(
+                Id = post.Id.ToString(),
+                BaseUri = Uri host,
+                Title = TextSyndicationContent post.Title,
+                PublishDate = post.CreatedTime,
+                LastUpdatedTime = post.UpdatedTime
+            )
+
+            item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
+
+            let mainImageFile = FileInfo(postsDir </> post.MainImage)
+            if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
+                item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
+            
+            if String.IsNullOrEmpty post.Keywords |> not then
+                for keyword in post.Keywords.Split([|','; ';'|]) do
+                    item.Categories.Add(SyndicationCategory keyword)
+
             logger.LogInformation("Fetch content for post {id}", post.Id)
             let! content = http.GetStringAsync($"view/post/feed/{post.Id}")
             item.Summary <- SyndicationContent.CreateHtmlContent(content)
+
+            items.Add item
+        
         with ex ->
             logger.LogError(ex, "Fetch content for post {id} failed", post.Id)
 
-        items.Add item
 
     let feed = SyndicationFeed(
         Title = TextSyndicationContent("slaveOftime blogs"),

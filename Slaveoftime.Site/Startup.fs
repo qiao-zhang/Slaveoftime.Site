@@ -38,6 +38,7 @@ services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettin
 services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Source=Slaveofitme.db") |> ignore)
 services.AddMemoryCache()
 
+services.AddGiraffe()
 services.AddControllersWithViews()
 services.AddServerSideBlazor(fun options -> options.RootComponents.RegisterCustomElementForFunBlazor(Assembly.GetExecutingAssembly()))
 services.AddFunBlazorServer()
