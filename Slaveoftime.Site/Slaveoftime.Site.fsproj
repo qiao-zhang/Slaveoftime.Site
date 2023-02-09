@@ -33,7 +33,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta007" />
-		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta006" />
+		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta007" />
 		<PackageReference Include="Fun.Blazor.Server" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Htmx" Version="3.0.0-beta003" />

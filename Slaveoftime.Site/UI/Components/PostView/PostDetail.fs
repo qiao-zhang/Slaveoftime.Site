@@ -28,6 +28,7 @@ type PostDetail =
                 childContent [
                     html.text (post.CreatedTime.ToString("yyyy-MM-dd"))
                     html.customElement<PostViewCount> (
+                        delayMs = 3000,
                         attrs =
                             ((nameof Unchecked.defaultof<PostViewCount>.post_id => post.Id.ToString())
                              ==> (nameof Unchecked.defaultof<PostViewCount>.count => post.ViewCount))
@@ -108,7 +109,10 @@ type PostDetail =
             PostDetail.PostSummary post
             PostDetail.PostContent post
             div { class' "divider" }
-            html.customElement<PostLikesSurvey> (attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
+            html.customElement<PostLikesSurvey> (
+                delayMs = 3000,    
+                attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString())
+            )
             div { class' "divider" }
             PostDetail.Scripts
         ]

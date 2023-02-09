@@ -32,5 +32,8 @@ type PostViewCount() =
                 | _ -> ()
             })
 
-            PostView.ViewCount(this.count)
+            if this.count > 0 then
+                PostView.ViewCount(this.count)
+            else
+                html.none
         )
