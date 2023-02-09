@@ -13,11 +13,29 @@ type PostDetailPage =
         match post with
         | Some post ->
             Layout.Create(
-                headerNode = fragment {
-                    title { post.Title }
+                headerNode = html.fragment [
+                    headerTitle post.Title
                     headerKeywords post.Keywords
                     headerDescription post.Description
-                },
+                    if String.IsNullOrEmpty post.MainImage then
+                        meta {
+                            name "twitter:card"
+                            content "summary"
+                        }
+                    else
+                        meta {
+                            name "twitter:card"
+                            content "summary_large_image"
+                        }
+                        meta {
+                            name "twitter:image"
+                            content $"blog/{post.MainImage}"
+                        }
+                        meta {
+                            name "og:image"
+                            content $"blog/{post.MainImage}"
+                        }
+                ],
                 bodyNode = PostDetail.Create post
             )
 

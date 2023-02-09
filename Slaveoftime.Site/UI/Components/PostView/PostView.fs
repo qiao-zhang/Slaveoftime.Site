@@ -18,6 +18,7 @@ type PostMeta = {
     Keywords: string
     Description: string
     CreateTime: DateTime
+    MainImage: string
 }
 
 

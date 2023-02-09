@@ -14,6 +14,9 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open YamlDotNet.Serialization
 open YamlDotNet.Serialization.NamingConventions
+open SixLabors.ImageSharp
+open SixLabors.ImageSharp.Formats.Webp
+open Fun.Result
 open Fun.Blazor
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
@@ -59,6 +62,7 @@ type DbCheck =
             post.UpdatedTime <- DateTime.Now
             post.CreatedTime <- meta.CreateTime
             post.Slug <- toSlug meta.Title
+            post.MainImage <- meta.MainImage
 
         logger.LogInformation("Migrate database")
         db.Database.Migrate()
@@ -124,5 +128,34 @@ type DbCheck =
 
         logger.LogInformation("Save database changes")
         db.SaveChanges() |> ignore
+
+
+        logger.LogInformation("Optimize images")
+        Directory.EnumerateFiles(postsDir, "*", SearchOption.AllDirectories)
+        |> Seq.filter (function
+            | SafeStringEndWithCi ".png"
+            | SafeStringEndWithCi ".jpeg" -> true
+            | _ -> false
+        )
+        |> Seq.iter (fun file ->
+            let info = FileInfo file
+            // Only optimize image size is bigger than 200kb
+            if info.Length > 1024L * 200L then
+                logger.LogInformation("Optimize image: {file}", file)
+                let postfix = "-original"
+                let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
+                
+                let originalFile = 
+                    if hasOriginal then file
+                    else Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
+                let lowQualityFile =
+                    if hasOriginal then Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
+                    else file
+
+                if not hasOriginal then File.Copy(file, originalFile)
+
+                use img = Image.Load originalFile
+                img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
+        )
 
         sp

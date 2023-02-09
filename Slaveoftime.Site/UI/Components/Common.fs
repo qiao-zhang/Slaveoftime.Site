@@ -22,14 +22,40 @@ let inline lazyStylesheet path = link {
 }
 
 
+let inline headerTitle (str: string) = fragment {
+    title { str }
+    meta {
+        name "twitter:creator"
+        content "slaveoftime"
+    }
+    meta {
+        name "twitter:site"
+        content "slaveoftime"
+    }
+    meta {
+        name "twitter:text:title"
+        content str
+    }
+    meta {
+        name "og:title"
+        content str
+    }
+}
+
 let inline headerKeywords (str: string) = meta {
     name "keywords"
     content str
 }
 
-let inline headerDescription (str: string) = meta {
-    name "description"
-    content str
+let inline headerDescription (str: string) = fragment {
+    meta {
+        name "description"
+        content str
+    }
+    meta {
+        name "og:description"
+        content str
+    }
 }
 
 

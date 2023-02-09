@@ -19,6 +19,7 @@ public class Post
     
     public string Slug { get; set; }
     public string ContentPath { get; set; }
+    public string MainImage { get; set; }
 
     public bool IsActive { get; set; }
     public bool IsDynamic { get; set; }

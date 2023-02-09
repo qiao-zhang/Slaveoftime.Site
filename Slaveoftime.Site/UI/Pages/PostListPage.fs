@@ -50,9 +50,13 @@ type PostListPage =
 
             Layout.Create(
                 headerNode = fragment {
-                    title { "slaveOftime blogs" }
+                    headerTitle "slaveOftime blogs"
                     headerKeywords "slaveoftime,fsharp,csharp,typescript,dotnet,frontend,backend"
                     headerDescription "This is slaveOftime blog lists, have fun"
+                    meta {
+                        name "twitter:card"
+                        content "summary"
+                    }
                 },
                 bodyNode = node
             )

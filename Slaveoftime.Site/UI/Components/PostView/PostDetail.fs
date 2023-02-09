@@ -35,15 +35,60 @@ type PostDetail =
                         PostView.LiksView post.Likes
                 ]
             }
+            if String.IsNullOrEmpty post.MainImage |> not then
+                img {
+                    class' "mx-auto object-fill object-center mt-5"
+                    src ($"blog/{post.MainImage}")
+                }
         ]
 
-    static member private PostContent(node: NodeRenderFragment) = section {
-        class' "my-10 px-5 text-slate-900 dark:text-slate-100"
-        article {
-            class'
-                "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 max-w-max"
-            node
-        }
+    static member private PostContent(post: Post) = 
+        html.inject (fun (memoryCache: IMemoryCache) ->
+            let node =
+                try
+                    if post.IsDynamic then
+                        match memoryCache.TryGetValue<NodeRenderFragment> $"post-dynamic-{post.Id}" with
+                        | true, node -> node
+                        | _ -> PostDetail.PostNotFound
+                    else
+                        html.raw (File.ReadAllText post.ContentPath)
+                with _ ->
+                    PostDetail.PostNotFound
+
+            section {
+                class' "my-10 px-5 text-slate-900 dark:text-slate-100"
+                article {
+                    class'
+                        "min-h-[500px] prose prose-slate dark:prose-invert prose-headings:text-teal-500/70 prose-img:rounded-md prose-img:shadow-lg prose-img:mx-auto prose-img:max-h-[400px] prose-pre:shadow-lg prose-a:text-blue-500/70 prose-blockquote:first-letter:text-3xl prose-blockquote:first-letter:text-yellow-500 max-w-max"
+                    node
+                }
+            }
+        )
+
+    static member private Scripts = fragment {
+        script { src "zoom.js" }
+        script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
+        script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
+        script { src "https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js" }
+        js
+            """
+            Prism.highlightAll();
+            Zoom('.post-detail img')
+
+            document.querySelectorAll("#post-detail img").forEach(item => {
+                if (item.className.indexOf("lazy") < 0) {
+                    const dotIndex = item.src.lastIndexOf(".")
+                    item.setAttribute("old-src", item.src)
+                    item.setAttribute("data-src", item.src.substr(0, dotIndex) + "-original" + item.src.substr(dotIndex))
+                    item.classList.add("lazy")
+                }
+            })
+            new LazyLoad({
+                callback_error: img => {
+                    img.setAttribute("src", img.attributes["old-src"].value);
+                }
+            }).update()
+            """
     }
 
     static member PostNotFound = div {
@@ -55,35 +100,18 @@ type PostDetail =
         }
     }
 
-    static member Create(post: Post) =
-        html.inject (fun (memoryCache: IMemoryCache) -> div {
-            class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
-            childContent [
-                PostDetail.PostSummary post
-                PostDetail.PostContent(
-                    try
-                        if post.IsDynamic then
-                            match memoryCache.TryGetValue<NodeRenderFragment> $"post-dynamic-{post.Id}" with
-                            | true, node -> node
-                            | _ -> PostDetail.PostNotFound
-                        else
-                            html.raw (File.ReadAllText post.ContentPath)
-                    with _ ->
-                        PostDetail.PostNotFound
-                )
-                div { class' "divider" }
-                html.customElement<PostLikesSurvey> (attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
-                div { class' "divider" }
-                script { src "zoom.js" }
-                script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js" }
-                script { src "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js" }
-                js
-                    "
-                    Prism.highlightAll();
-                    Zoom('.post-detail img')
-                    "
-            ]
-        })
+    static member Create(post: Post) = div {
+        id "post-detail"
+        class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
+        childContent [
+            PostDetail.PostSummary post
+            PostDetail.PostContent post
+            div { class' "divider" }
+            html.customElement<PostLikesSurvey> (attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
+            div { class' "divider" }
+            PostDetail.Scripts
+        ]
+    }
 
 
     static member Create(postId: Guid) =
@@ -92,5 +120,24 @@ type PostDetail =
 
             match post with
             | Some post -> PostDetail.Create post
-            | None -> Layout.Create(bodyNode = PostDetail.PostNotFound)
+            | None -> PostDetail.PostNotFound
+        )
+
+
+    static member CreateForFeed(postId: Guid) =
+        html.inject (fun (db: SlaveoftimeDb) ->
+            let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId) |> Option.ofObj
+
+            match post with
+            | Some post -> 
+                div {
+                    id "post-detail"
+                    class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
+                    childContent [
+                        stylesheet "css/tailwind-generated.css"
+                        PostDetail.PostContent post
+                        PostDetail.Scripts
+                    ]
+                }
+            | None -> PostDetail.PostNotFound
         )

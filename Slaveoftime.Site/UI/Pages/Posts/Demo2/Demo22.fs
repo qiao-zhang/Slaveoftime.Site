@@ -32,6 +32,7 @@ type Demo22 =
             Keywords = "k1,k2"
             Description = "demo2 description"
             CreateTime = DateTime.Parse "2023-01-24"
+            MainImage = "Demo2/demo2.png"
         }
 
         static member View = div {

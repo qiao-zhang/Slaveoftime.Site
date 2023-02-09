@@ -2222,6 +2222,11 @@ html {
   margin-bottom: 0.5rem;
 }
 
+.my-3 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
 .-ml-1 {
   margin-left: -0.25rem;
 }
@@ -2230,12 +2235,12 @@ html {
   margin-right: 0.75rem;
 }
 
-.mt-10 {
-  margin-top: 2.5rem;
-}
-
 .mt-5 {
   margin-top: 1.25rem;
+}
+
+.mt-10 {
+  margin-top: 2.5rem;
 }
 
 .mt-3 {
@@ -2302,13 +2307,13 @@ html {
   width: 1.5rem;
 }
 
+.max-w-\[720px\] {
+  max-width: 720px;
+}
+
 .max-w-max {
   max-width: -moz-max-content;
   max-width: max-content;
-}
-
-.max-w-\[720px\] {
-  max-width: 720px;
 }
 
 .flex-shrink-0 {
@@ -2378,6 +2383,16 @@ html {
 
 .stroke-info {
   stroke: hsl(var(--in));
+}
+
+.object-fill {
+  -o-object-fit: fill;
+     object-fit: fill;
+}
+
+.object-center {
+  -o-object-position: center;
+     object-position: center;
 }
 
 .p-10 {
@@ -2555,6 +2570,28 @@ html {
 #components-reconnect-modal.components-reconnect-failed,
 #components-reconnect-modal.components-reconnect-rejected {
   display: none !important;
+}
+
+img.lazy {
+  filter: blur(4px);
+}
+
+img.initial,
+img.loaded,
+img.error {
+  animation: image-fade-in 1s forwards;
+}
+
+@keyframes image-fade-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0px);
+  }
 }
 
 .first-letter\:text-2xl::first-letter {

@@ -17,6 +17,7 @@ type ``A post for describe the post itself`` =
             Keywords = "blog,fsharp"
             Description = "This blog site is rebuilt for many times, now, there is one more to go ..."
             CreateTime = DateTime.Parse "2023-02-01"
+            MainImage = ""
         }
 
         static member View =
