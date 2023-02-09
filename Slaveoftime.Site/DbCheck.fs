@@ -5,9 +5,6 @@ open System.IO
 open System.Linq
 open System.Reflection
 open System.Runtime.CompilerServices
-open System.Globalization
-open System.Text
-open System.Text.RegularExpressions
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.Caching.Memory
 open Microsoft.Extensions.DependencyInjection
@@ -32,19 +29,6 @@ type DbCheck =
         let logger = sp.GetService<ILoggerFactory>().CreateLogger("DbCheck")
         let deserializer = DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build()
 
-        let toSlug (title: string) =
-            let invalidChars = Regex.Escape(string (Path.GetInvalidFileNameChars()))
-            let invalidRegStr = String.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars)
-
-            let slug =
-                Regex.Replace(title, invalidRegStr, "_").Normalize(NormalizationForm.FormD)
-                |> Seq.filter (fun c -> CharUnicodeInfo.GetUnicodeCategory(c) <> UnicodeCategory.NonSpacingMark)
-                |> String.Concat
-                |> fun x -> x.Normalize(NormalizationForm.FormC)
-
-            let slug = slug.Replace(" ", "-")
-            slug.ToLowerInvariant()
-
         let addOrUpdatePost postType (meta: PostMeta) =
             let post = db.Posts.FirstOrDefault(fun x -> x.Id = meta.Id) |> Option.ofObj |> Option.defaultWith Post
 
@@ -64,12 +48,12 @@ type DbCheck =
             post.Slug <- toSlug meta.Title
             post.MainImage <- meta.MainImage
 
+
         logger.LogInformation("Migrate database")
         db.Database.Migrate()
 
 
         logger.LogInformation("Fetch post from physical files")
-
         Directory.GetFiles(postsDir, "*.md", EnumerationOptions(RecurseSubdirectories = true))
         |> Seq.iter (fun path ->
             logger.LogInformation("Process {file} for post", path)

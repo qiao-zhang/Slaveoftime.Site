@@ -1,9 +1,11 @@
 namespace Slaveoftime.UI.Pages
 
+open System
 open Microsoft.AspNetCore.Http
 open Giraffe
 open Fun.Blazor
 open Fun.Htmx
+open Slaveoftime
 open Slaveoftime.UI.Components
 open Slaveoftime.UI.Components.PostView
 
@@ -50,9 +52,9 @@ type PostListPage =
 
             Layout.Create(
                 headerNode = fragment {
-                    headerTitle "slaveOftime blogs"
-                    headerKeywords "slaveoftime,fsharp,csharp,typescript,dotnet,frontend,backend"
-                    headerDescription "This is slaveOftime blog lists, have fun"
+                    headerTitle siteTitle
+                    headerKeywords siteDescription
+                    headerDescription (String.Join(",", siteKeywords))
                     meta {
                         name "twitter:card"
                         content "summary"

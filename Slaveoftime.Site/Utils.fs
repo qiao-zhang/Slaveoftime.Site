@@ -3,7 +3,10 @@ module Slaveoftime.Utils
 
 open System
 open System.IO
+open System.Text
+open System.Text.RegularExpressions
 open System.Reflection
+open System.Globalization
 
 
 let inline (</>) x y = 
@@ -30,3 +33,29 @@ let host =
     #else
     "https://www.slaveoftime.fun"
     #endif
+
+
+let toSlug (title: string) =
+    let invalidChars = Regex.Escape(string (Path.GetInvalidFileNameChars()))
+    let invalidRegStr = String.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars)
+
+    let slug =
+        Regex.Replace(title, invalidRegStr, "_").Normalize(NormalizationForm.FormD)
+        |> Seq.filter (fun c -> CharUnicodeInfo.GetUnicodeCategory(c) <> UnicodeCategory.NonSpacingMark)
+        |> String.Concat
+        |> fun x -> x.Normalize(NormalizationForm.FormC)
+
+    let slug = slug.Replace(" ", "-")
+    slug.ToLowerInvariant()
+
+
+let siteTitle = "slaveOftime blogs"
+let siteDescription = "This site is my personal blogs, I will try some technology on this site when needed."
+let siteKeywords = [
+    "blog"
+    "vlog"
+    "developing"
+    "dotnet"
+    "csharp"
+    "fsharp"
+]

@@ -12,8 +12,8 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open FSharp.Data
 open Giraffe
+open Slaveoftime
 open Slaveoftime.Db
-open Slaveoftime.UI.Components
 
 
 type FeedType = RSS | ATOM
@@ -65,21 +65,12 @@ let generateFeedFile (sp: IServiceProvider) = task {
 
 
     let feed = SyndicationFeed(
-        Title = TextSyndicationContent("slaveOftime blogs"),
-        Description = TextSyndicationContent("This site is my personal blogs, I will try some technology on this site when needed."),
+        Title = TextSyndicationContent(siteTitle),
+        Description = TextSyndicationContent(siteDescription),
         Items = items
     )
 
-    let categories = [
-        "blog"
-        "vlog"
-        "developing"
-        "dotnet"
-        "csharp"
-        "fsharp"
-    ]
-
-    for cat in categories do
+    for cat in siteKeywords do
         feed.Categories.Add(SyndicationCategory cat)
 
     feed.Links.Add(SyndicationLink.CreateAlternateLink(Uri host))
