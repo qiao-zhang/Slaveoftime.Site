@@ -70,7 +70,6 @@ type DbCheck =
 
         logger.LogInformation("Fetch post from physical files")
 
-        let postsDir = DirectoryInfo("UI/Pages/Posts").FullName
         Directory.GetFiles(postsDir, "*.md", EnumerationOptions(RecurseSubdirectories = true))
         |> Seq.iter (fun path ->
             logger.LogInformation("Process {file} for post", path)
@@ -153,7 +152,7 @@ type DbCheck =
                         if hasOriginal then Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
                         else file
 
-                    if not hasOriginal then File.Copy(file, originalFile)
+                    if not hasOriginal then File.Copy(file, originalFile, true)
 
                     use img = Image.Load originalFile
                     img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))

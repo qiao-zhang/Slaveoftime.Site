@@ -15,6 +15,7 @@ open Giraffe
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
 
+
 type FeedType = RSS | ATOM
 
 
@@ -24,16 +25,7 @@ let private feedCacheFile (feedType: FeedType) = $"feed-{feedType}.xml"
 let generateFeedFile (sp: IServiceProvider) = task {
     let db = sp.GetService<SlaveoftimeDb>()
     let logger = sp.GetService<ILoggerFactory>().CreateLogger("FeedGenerator")
-            
-    let host =
-        #if DEBUG
-        "https://localhost:6001"
-        #else
-        "https://www.slaveoftime.fun"
-        #endif
-
-    let postsDir = DirectoryInfo("UI/Pages/Posts").FullName
-
+        
     logger.LogInformation "Prepare posts for feed generating"
 
     use http = new HttpClient()
@@ -41,36 +33,34 @@ let generateFeedFile (sp: IServiceProvider) = task {
 
     let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToListAsync()
 
-    let items = 
-        posts
-        |> Seq.map (fun post -> 
-            let item = SyndicationItem(
-                Id = post.Id.ToString(),
-                Title = TextSyndicationContent post.Title,
-                PublishDate = post.CreatedTime,
-                LastUpdatedTime = post.UpdatedTime
-            )
-
-            item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
-
-            let mainImageFile = FileInfo(postsDir </> post.MainImage)
-            if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
-                item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
-            
-            try
-                for keyword in post.Keywords.Split([|','; ';'|]) do
-                    item.Categories.Add(SyndicationCategory keyword)
-
-                logger.LogInformation("Fetch content for post {id}", post.Id)
-                let content = http.GetStringAsync($"view/post/feed/{post.Id}").Result
-                item.Summary <- SyndicationContent.CreateHtmlContent(content)
-            
-            with ex ->
-                logger.LogError(ex, "Fetch content for post {id} failed", post.Id)
-
-            item
+    let items = Collections.Generic.List()
+    for post in posts do
+        let item = SyndicationItem(
+            Id = post.Id.ToString(),
+            BaseUri = Uri host,
+            Title = TextSyndicationContent post.Title,
+            PublishDate = post.CreatedTime,
+            LastUpdatedTime = post.UpdatedTime
         )
-        |> Seq.toList
+
+        item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
+
+        let mainImageFile = FileInfo(postsDir </> post.MainImage)
+        if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
+            item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
+        
+        if String.IsNullOrEmpty post.Keywords |> not then
+            for keyword in post.Keywords.Split([|','; ';'|]) do
+                item.Categories.Add(SyndicationCategory keyword)
+
+        try
+            logger.LogInformation("Fetch content for post {id}", post.Id)
+            let! content = http.GetStringAsync($"view/post/feed/{post.Id}")
+            item.Summary <- SyndicationContent.CreateHtmlContent(content)
+        with ex ->
+            logger.LogError(ex, "Fetch content for post {id} failed", post.Id)
+
+        items.Add item
 
     let feed = SyndicationFeed(
         Title = TextSyndicationContent("slaveOftime blogs"),

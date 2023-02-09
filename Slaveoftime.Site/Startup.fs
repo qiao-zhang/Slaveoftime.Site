@@ -6,7 +6,6 @@ open System.Text.Unicode
 open System.Text.Encodings.Web
 open System.Reflection
 open Microsoft.AspNetCore.Builder
-open Microsoft.AspNetCore.ResponseCompression
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.WebEncoders
 open Microsoft.Extensions.FileProviders
@@ -18,8 +17,6 @@ open Serilog
 open Serilog.Events
 open Slaveoftime
 open Slaveoftime.Db
-open Slaveoftime.UI.Components
-open Slaveoftime.UI.Pages
 
 
 Log.Logger <-
@@ -55,9 +52,6 @@ services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettin
 let app = builder.Build()
 
 
-let versionStampFile = "version-stamp"
-let versionStamp = FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime.ToString()
-
 if File.Exists versionStampFile |> not || File.ReadAllText versionStampFile <> versionStamp then
     try
         let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
@@ -75,6 +69,7 @@ if File.Exists versionStampFile |> not || File.ReadAllText versionStampFile <> v
     with ex ->
         Log.Error(ex, "Prepare assets failed")
         raise ex
+
 
 app.UseResponseCaching()
 app.UseResponseCompression()

@@ -4,6 +4,7 @@ open System.IO
 open Fun.Blazor
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Hosting
+open Slaveoftime
 open Slaveoftime.UI.Components
 
 

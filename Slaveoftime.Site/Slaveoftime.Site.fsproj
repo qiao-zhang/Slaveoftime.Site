@@ -6,7 +6,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="Migrations/*.fs" />
+		<Compile Include="Utils.fs" />
 		<Compile Include="UI\Components\Common.fs" />
 		<Compile Include="UI\Components\Navbar.fs" />
 		<Compile Include="UI\Components\Footer.fs" />

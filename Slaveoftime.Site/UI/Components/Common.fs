@@ -5,15 +5,6 @@ open System.IO
 open Fun.Blazor
 
 
-let inline (</>) x y = Path.Combine(x, y)
-
-
-let inline (<?>) (x: 'T voption) (def: 'T) =
-    match x with
-    | ValueSome x -> x
-    | _ -> def
-
-
 let inline lazyStylesheet path = link {
     href path
     rel "stylesheet"
