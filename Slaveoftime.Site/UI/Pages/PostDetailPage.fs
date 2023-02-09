@@ -3,6 +3,7 @@ namespace Slaveoftime.UI.Pages
 open System
 open System.Linq
 open Fun.Blazor
+open Slaveoftime
 open Slaveoftime.Db
 open Slaveoftime.UI.Components
 open Slaveoftime.UI.Components.PostView
@@ -24,17 +25,18 @@ type PostDetailPage =
                                 content "summary"
                             }
                         else
+                            let imageUrl = host </+> "blog" </+> post.MainImage
                             meta {
                                 name "twitter:card"
                                 content "summary_large_image"
                             }
                             meta {
                                 name "twitter:image"
-                                content $"blog/{post.MainImage}"
+                                content imageUrl
                             }
                             meta {
                                 name "og:image"
-                                content $"blog/{post.MainImage}"
+                                content imageUrl
                             }
                     ],
                 bodyNode = PostDetail.Create post
