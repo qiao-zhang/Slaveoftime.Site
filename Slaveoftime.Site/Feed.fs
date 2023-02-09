@@ -33,7 +33,7 @@ let generateFeedFile (sp: IServiceProvider) = task {
     use http = new HttpClient()
     http.BaseAddress <- Uri host
 
-    let! posts = db.Posts.OrderByDescending(fun x -> x.CreatedTime).ToListAsync()
+    let! posts = db.Posts.Where(fun x -> x.IsActive).OrderByDescending(fun x -> x.CreatedTime).ToListAsync()
 
     let items = Collections.Generic.List()
     for post in posts do

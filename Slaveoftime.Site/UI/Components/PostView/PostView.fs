@@ -19,6 +19,7 @@ type PostMeta = {
     Description: string
     CreateTime: DateTime
     MainImage: string
+    IsHidden: bool
 }
 
 

@@ -59,7 +59,7 @@ type PostList =
 
                 | _ -> db.Posts
 
-            let posts = postsQuery.OrderByDescending(fun x -> x.CreatedTime).ToList()
+            let posts = postsQuery.Where(fun x -> x.IsActive).OrderByDescending(fun x -> x.CreatedTime).ToList()
 
             if posts.Count = 0 then
                 div {

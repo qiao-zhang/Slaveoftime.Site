@@ -33,8 +33,7 @@ type PostDetail =
                             ((nameof Unchecked.defaultof<PostViewCount>.post_id => post.Id.ToString())
                              ==> (nameof Unchecked.defaultof<PostViewCount>.count => post.ViewCount))
                     )
-                    if post.Likes > 0 then
-                        PostView.LiksView post.Likes
+                    if post.Likes > 0 then PostView.LiksView post.Likes
                 ]
             }
             if String.IsNullOrEmpty post.MainImage |> not then
@@ -44,7 +43,7 @@ type PostDetail =
                 }
         ]
 
-    static member private PostContent(post: Post) = 
+    static member private PostContent(post: Post) =
         html.inject (fun (memoryCache: IMemoryCache) ->
             let node =
                 try
@@ -109,10 +108,7 @@ type PostDetail =
             PostDetail.PostSummary post
             PostDetail.PostContent post
             div { class' "divider" }
-            html.customElement<PostLikesSurvey> (
-                delayMs = 3000,    
-                attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString())
-            )
+            html.customElement<PostLikesSurvey> (delayMs = 3000, attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
             div { class' "divider" }
             PostDetail.Scripts
         ]
@@ -121,7 +117,7 @@ type PostDetail =
 
     static member Create(postId: Guid) =
         html.inject (fun (db: SlaveoftimeDb) ->
-            let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId) |> Option.ofObj
+            let post = db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj
 
             match post with
             | Some post -> PostDetail.Create post
@@ -131,18 +127,13 @@ type PostDetail =
 
     static member CreateForFeed(postId: Guid) =
         html.inject (fun (db: SlaveoftimeDb) ->
-            let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId) |> Option.ofObj
+            let post = db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj
 
             match post with
-            | Some post -> 
-                div {
-                    id "post-detail"
-                    class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
-                    childContent [
-                        stylesheet $"{host}/css/tailwind-generated.css"
-                        PostDetail.PostContent post
-                        PostDetail.Scripts
-                    ]
-                }
+            | Some post -> div {
+                id "post-detail"
+                class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
+                childContent [ stylesheet $"{host}/css/tailwind-generated.css"; PostDetail.PostContent post; PostDetail.Scripts ]
+              }
             | None -> PostDetail.PostNotFound
         )

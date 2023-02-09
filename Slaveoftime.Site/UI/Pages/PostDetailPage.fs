@@ -43,7 +43,11 @@ type PostDetailPage =
         | None -> Layout.Create(bodyNode = PostDetail.PostNotFound)
 
     static member Create(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb) -> db.Posts.FirstOrDefault(fun x -> x.Id = postId) |> Option.ofObj |> PostDetailPage.Create)
+        html.inject (fun (db: SlaveoftimeDb) ->
+            db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj |> PostDetailPage.Create
+        )
 
     static member Create(postSlug: string) =
-        html.inject (fun (db: SlaveoftimeDb) -> db.Posts.FirstOrDefault(fun x -> x.Slug = postSlug) |> Option.ofObj |> PostDetailPage.Create)
+        html.inject (fun (db: SlaveoftimeDb) ->
+            db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Slug = postSlug) |> Option.ofObj |> PostDetailPage.Create
+        )

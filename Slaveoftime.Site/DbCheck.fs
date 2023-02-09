@@ -47,6 +47,7 @@ type DbCheck =
             post.CreatedTime <- meta.CreateTime
             post.Slug <- toSlug meta.Title
             post.MainImage <- meta.MainImage
+            post.IsActive <- not meta.IsHidden
 
 
         logger.LogInformation("Migrate database")
