@@ -26,7 +26,7 @@ type PostListPage =
                                 name "search"
                                 value (ctx.TryGetQueryStringValue("search") |> Option.defaultValue "")
                                 placeholder "Search by title, keywords and description"
-                                hxTrigger'(hxEvt.keyboard.keyup, changed = true, delayMs = 500)
+                                hxTrigger' (hxEvt.keyboard.keyup, changed = true, delayMs = 500)
                                 hxGet "/view/post-list"
                                 hxTarget "#post-list"
                                 hxIndicator ".htmx-indicator"
@@ -35,9 +35,10 @@ type PostListPage =
                             button {
                                 class' "btn btn-square btn-sm"
                                 childContent [
-                                    Static.html """
+                                    Static.html
+                                        """
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                    """
+                                        """
                                 ]
                             }
                         ]

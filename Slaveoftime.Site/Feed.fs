@@ -16,7 +16,9 @@ open Slaveoftime
 open Slaveoftime.Db
 
 
-type FeedType = RSS | ATOM
+type FeedType =
+    | RSS
+    | ATOM
 
 
 let private feedCacheFile (feedType: FeedType) = $"feed-{feedType}.xml"
@@ -25,7 +27,7 @@ let private feedCacheFile (feedType: FeedType) = $"feed-{feedType}.xml"
 let generateFeedFile (sp: IServiceProvider) = task {
     let db = sp.GetService<SlaveoftimeDb>()
     let logger = sp.GetService<ILoggerFactory>().CreateLogger("FeedGenerator")
-        
+
     logger.LogInformation "Prepare posts for feed generating"
 
     use http = new HttpClient()
@@ -36,22 +38,23 @@ let generateFeedFile (sp: IServiceProvider) = task {
     let items = Collections.Generic.List()
     for post in posts do
         try
-            let item = SyndicationItem(
-                Id = post.Id.ToString(),
-                BaseUri = Uri host,
-                Title = TextSyndicationContent post.Title,
-                PublishDate = post.CreatedTime,
-                LastUpdatedTime = post.UpdatedTime
-            )
+            let item =
+                SyndicationItem(
+                    Id = post.Id.ToString(),
+                    BaseUri = Uri host,
+                    Title = TextSyndicationContent post.Title,
+                    PublishDate = post.CreatedTime,
+                    LastUpdatedTime = post.UpdatedTime
+                )
 
             item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
 
-            let mainImageFile = FileInfo(postsDir </> post.MainImage)
-            if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
-                item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
-            
+            // let mainImageFile = FileInfo(postsDir </> post.MainImage)
+            // if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
+            //     item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri(host </+> "blog" </+> post.MainImage), "image", mainImageFile.Length))
+
             if String.IsNullOrEmpty post.Keywords |> not then
-                for keyword in post.Keywords.Split([|','; ';'|]) do
+                for keyword in post.Keywords.Split([| ','; ';' |]) do
                     item.Categories.Add(SyndicationCategory keyword)
 
             logger.LogInformation("Fetch content for post {id}", post.Id)
@@ -59,16 +62,13 @@ let generateFeedFile (sp: IServiceProvider) = task {
             item.Summary <- SyndicationContent.CreateHtmlContent(content)
 
             items.Add item
-        
+
         with ex ->
             logger.LogError(ex, "Fetch content for post {id} failed", post.Id)
 
 
-    let feed = SyndicationFeed(
-        Title = TextSyndicationContent(siteTitle),
-        Description = TextSyndicationContent(siteDescription),
-        Items = items
-    )
+    let feed =
+        SyndicationFeed(Title = TextSyndicationContent(siteTitle), Description = TextSyndicationContent(siteDescription), Items = items)
 
     for cat in siteKeywords do
         feed.Categories.Add(SyndicationCategory cat)
@@ -76,7 +76,7 @@ let generateFeedFile (sp: IServiceProvider) = task {
     feed.Links.Add(SyndicationLink.CreateAlternateLink(Uri host))
     feed.Links.Add(SyndicationLink.CreateSelfLink(Uri $"{host}/feed", "application/rss+xml"))
 
-    for feedType in [RSS; ATOM] do
+    for feedType in [ RSS; ATOM ] do
         try
             logger.LogInformation("Generating feed file for {feedType}", feedType)
             use memoryStream = new MemoryStream()
@@ -90,20 +90,21 @@ let generateFeedFile (sp: IServiceProvider) = task {
             let fileName = feedCacheFile feedType
             File.WriteAllBytes(fileName, bytes)
             logger.LogInformation("Generated feed {file}", fileName)
-        
+
         with ex ->
             logger.LogError(ex, "Generating feed file for {feedType} failed", feedType)
 }
 
 
-let handle feedType: HttpHandler =
+let handle feedType : HttpHandler =
     fun nxt ctx -> task {
         let fileName = FileInfo(feedCacheFile feedType)
         if fileName.Exists then
-            return! (
-                setHttpHeader HttpResponseHeaders.ContentType "application/xml; charset=utf-8"
-                >=> streamFile true fileName.FullName None (Some fileName.LastWriteTime) 
-            ) nxt ctx
+            return!
+                (setHttpHeader HttpResponseHeaders.ContentType "application/xml; charset=utf-8"
+                 >=> streamFile true fileName.FullName None (Some fileName.LastWriteTime))
+                    nxt
+                    ctx
         else
             return! RequestErrors.NOT_FOUND "Feed is not ready yet" nxt ctx
     }

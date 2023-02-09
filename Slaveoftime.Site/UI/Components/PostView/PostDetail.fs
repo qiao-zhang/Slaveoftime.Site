@@ -40,7 +40,7 @@ type PostDetail =
             if String.IsNullOrEmpty post.MainImage |> not then
                 img {
                     class' "mx-auto object-fill object-center mt-5"
-                    src ($"{host}/blog/{post.MainImage}")
+                    src (host </+> "blog" </+> post.MainImage)
                 }
         ]
 

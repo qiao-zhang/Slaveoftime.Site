@@ -58,12 +58,9 @@ if File.Exists versionStampFile |> not || File.ReadAllText versionStampFile <> v
         let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
         scope.ServiceProvider.MigrateDb() |> ignore
 
-        #if !DEBUG
-        app.Lifetime.ApplicationStarted.Register(fun () ->
-            Feed.generateFeedFile scope.ServiceProvider |> ignore
-        )
-        |> ignore
-        #endif
+#if !DEBUG
+        app.Lifetime.ApplicationStarted.Register(fun () -> Feed.generateFeedFile scope.ServiceProvider |> ignore) |> ignore
+#endif
 
         File.WriteAllText(versionStampFile, versionStamp)
 
@@ -82,11 +79,13 @@ app.UseStaticFiles(
     StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
 )
 
-app.UseGiraffe(choose [
-    routeCi "/feed" >=> Feed.handle Feed.RSS
-    routeCi "/feed/rss" >=> Feed.handle Feed.RSS
-    routeCi "/feed/atom" >=> Feed.handle Feed.ATOM
-])
+app.UseGiraffe(
+    choose [
+        routeCi "/feed" >=> Feed.handle Feed.RSS
+        routeCi "/feed/rss" >=> Feed.handle Feed.RSS
+        routeCi "/feed/atom" >=> Feed.handle Feed.ATOM
+    ]
+)
 app.UseGiraffe(UI.Routes.uiRoutes)
 
 app.MapBlazorHub()

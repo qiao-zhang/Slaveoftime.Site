@@ -62,13 +62,19 @@ type DbCheck =
                 try
                     let metaLines = file |> Seq.skip 1 |> Seq.takeWhile ((<>) "---")
                     // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
-                    let baseUrl = host + "/blog/" + Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/") + "/"
+                    let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
+                    let baseUrl = host </+> "blog" </+> relativeUrl
                     let htmlPath = Path.GetDirectoryName path </> Path.GetFileNameWithoutExtension path + ".html"
 
                     // Parse post meta
                     metaLines
                     |> String.concat Environment.NewLine
                     |> deserializer.Deserialize<PostMeta>
+                    |> fun meta ->
+                        if String.IsNullOrEmpty meta.MainImage |> not then
+                            { meta with MainImage = relativeUrl </+> meta.MainImage }
+                        else
+                            meta
                     |> addOrUpdatePost (PostType.Static htmlPath)
 
                     // Convert post detail
@@ -115,7 +121,8 @@ type DbCheck =
 
         logger.LogInformation("Optimize images")
         Directory.EnumerateFiles(postsDir, "*", SearchOption.AllDirectories)
-        |> Seq.filter (function
+        |> Seq.filter (
+            function
             | SafeStringEndWithCi ".png"
             | SafeStringEndWithCi ".jpeg" -> true
             | _ -> false
@@ -128,19 +135,24 @@ type DbCheck =
                     logger.LogInformation("Optimize image: {file}", file)
                     let postfix = "-original"
                     let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
+
+                    let originalFile =
+                        if hasOriginal then
+                            file
+                        else
+                            Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
                     
-                    let originalFile = 
-                        if hasOriginal then file
-                        else Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
                     let lowQualityFile =
-                        if hasOriginal then Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
-                        else file
+                        if hasOriginal then
+                            Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
+                        else
+                            file
 
                     if not hasOriginal then File.Copy(file, originalFile, true)
 
                     use img = Image.Load originalFile
                     img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
-                    
+
                 with ex ->
                     logger.LogError(ex, "Optimize image: {file} failed", file)
         )

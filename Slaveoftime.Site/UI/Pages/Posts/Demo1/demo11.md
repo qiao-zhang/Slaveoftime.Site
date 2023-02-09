@@ -4,9 +4,12 @@ title: demo11
 keywords: key1,key2
 description: demo1 description
 createTime: 2023-01-21
+mainImage: demo1.png
 ---
 
 ## demo11
+
+For **mainImage**, it is using current directory as reference
 
 ![demo](./demo1.png)
 

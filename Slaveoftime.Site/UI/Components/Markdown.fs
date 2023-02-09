@@ -16,18 +16,7 @@ type Markdown =
         use writer = new StringWriter()
         let renderer = new HtmlRenderer(writer)
 
-        renderer.LinkRewriter <-
-            fun url ->
-                if url.StartsWith "/" then
-                    baseUrl + url.Substring(1)
-                elif url.StartsWith "./" then
-                    baseUrl + url.Substring(2)
-                elif url.StartsWith("http://", StringComparison.CurrentCultureIgnoreCase) then
-                    url
-                elif url.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase) then
-                    url
-                else
-                    baseUrl + url
+        renderer.LinkRewriter <- composeUrl baseUrl
 
         pipeline.Setup(renderer)
 
@@ -39,12 +28,5 @@ type Markdown =
 
 
     static member RenderForBlog(relativeSlug: string, markdown: string) =
-        let ensureEnd (str: string) = if str.EndsWith "/" then relativeSlug else str + "/"
-
-        let baseUrl =
-            host + "/blog/"
-            + (if relativeSlug = "/" then ""
-               else if relativeSlug.StartsWith "/" then relativeSlug.Substring(1) |> ensureEnd
-               else relativeSlug |> ensureEnd)
-
+        let baseUrl = host </+> "blog" </+> relativeSlug
         html.raw (Markdown.ConvertToHtml(baseUrl, markdown))
