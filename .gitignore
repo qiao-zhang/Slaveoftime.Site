@@ -371,3 +371,4 @@ deploy/
 /Slaveoftime.Site/Slaveofitme.db
 /Slaveoftime.Site/UI/Pages/Posts/**/*.html
 /Slaveoftime.Site/feed-*.xml
+/Slaveoftime.Site/version-stamp

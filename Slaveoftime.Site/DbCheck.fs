@@ -141,21 +141,25 @@ type DbCheck =
             let info = FileInfo file
             // Only optimize image size is bigger than 200kb
             if info.Length > 1024L * 200L then
-                logger.LogInformation("Optimize image: {file}", file)
-                let postfix = "-original"
-                let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
-                
-                let originalFile = 
-                    if hasOriginal then file
-                    else Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
-                let lowQualityFile =
-                    if hasOriginal then Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
-                    else file
+                try
+                    logger.LogInformation("Optimize image: {file}", file)
+                    let postfix = "-original"
+                    let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
+                    
+                    let originalFile = 
+                        if hasOriginal then file
+                        else Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
+                    let lowQualityFile =
+                        if hasOriginal then Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
+                        else file
 
-                if not hasOriginal then File.Copy(file, originalFile)
+                    if not hasOriginal then File.Copy(file, originalFile)
 
-                use img = Image.Load originalFile
-                img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
+                    use img = Image.Load originalFile
+                    img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
+                    
+                with ex ->
+                    logger.LogError(ex, "Optimize image: {file} failed", file)
         )
 
         sp

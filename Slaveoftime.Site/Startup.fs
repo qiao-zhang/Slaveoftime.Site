@@ -54,14 +54,27 @@ services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettin
 
 let app = builder.Build()
 
-let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
-scope.ServiceProvider.MigrateDb()
 
-#if !DEBUG
-app.Lifetime.ApplicationStarted.Register(fun () ->
-    Feed.generateFeedFile scope.ServiceProvider |> ignore
-)
-#endif
+let versionStampFile = "version-stamp"
+let versionStamp = FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime.ToString()
+
+if File.Exists versionStampFile |> not || File.ReadAllText versionStampFile <> versionStamp then
+    try
+        let scope = app.Services.GetService<IServiceScopeFactory>().CreateScope()
+        scope.ServiceProvider.MigrateDb() |> ignore
+
+        #if !DEBUG
+        app.Lifetime.ApplicationStarted.Register(fun () ->
+            Feed.generateFeedFile scope.ServiceProvider |> ignore
+        )
+        |> ignore
+        #endif
+
+        File.WriteAllText(versionStampFile, versionStamp)
+
+    with ex ->
+        Log.Error(ex, "Prepare assets failed")
+        raise ex
 
 app.UseResponseCaching()
 app.UseResponseCompression()
