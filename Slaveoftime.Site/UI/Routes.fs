@@ -39,6 +39,7 @@ let uiRoutes: HttpHandler =
         subRouteCi "/view" (choose [
             routeCi "/post-list" >=> View.Build PostList.Create
             routeCif "/post/%O" (fun (id: Guid) -> View.Build(PostDetail.Create id))
+            routeCif "/post/feed/%O" (fun (id: Guid) -> View.Build(PostDetail.CreateForFeed id))
         ])
         // pages
         routeCif "/blog/%O" (fun (id: Guid) -> View.Build(PostDetailPage.Create id))

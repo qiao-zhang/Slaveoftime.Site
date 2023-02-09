@@ -13,6 +13,7 @@ open Microsoft.EntityFrameworkCore
 open FSharp.Data
 open Giraffe
 open Slaveoftime.Db
+open Slaveoftime.UI.Components
 
 type FeedType = RSS | ATOM
 
@@ -31,6 +32,8 @@ let generateFeedFile (sp: IServiceProvider) = task {
         "https://www.slaveoftime.fun"
         #endif
 
+    let postsDir = DirectoryInfo("UI/Pages/Posts").FullName
+
     logger.LogInformation "Prepare posts for feed generating"
 
     use http = new HttpClient()
@@ -44,20 +47,23 @@ let generateFeedFile (sp: IServiceProvider) = task {
             let item = SyndicationItem(
                 Id = post.Id.ToString(),
                 Title = TextSyndicationContent post.Title,
-                Summary = TextSyndicationContent post.Description,
                 PublishDate = post.CreatedTime,
                 LastUpdatedTime = post.UpdatedTime
             )
 
             item.Links.Add(SyndicationLink.CreateAlternateLink(Uri $"{host}/blog/{post.Slug}"))
 
+            let mainImageFile = FileInfo(postsDir </> post.MainImage)
+            if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
+                item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri $"{host}/blog/{post.MainImage}", "image", mainImageFile.Length))
+            
             try
                 for keyword in post.Keywords.Split([|','; ';'|]) do
                     item.Categories.Add(SyndicationCategory keyword)
-                
+
                 logger.LogInformation("Fetch content for post {id}", post.Id)
-                let content = http.GetStringAsync($"view/post/{post.Id}").Result
-                item.Content <- SyndicationContent.CreateHtmlContent(content)
+                let content = http.GetStringAsync($"view/post/feed/{post.Id}").Result
+                item.Summary <- SyndicationContent.CreateHtmlContent(content)
             
             with ex ->
                 logger.LogError(ex, "Fetch content for post {id} failed", post.Id)

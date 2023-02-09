@@ -2381,6 +2381,10 @@ html {
   background-color: rgb(75 85 99 / 0.1);
 }
 
+.fill-slate-700 {
+  fill: #334155;
+}
+
 .stroke-info {
   stroke: hsl(var(--in));
 }
@@ -2502,6 +2506,11 @@ html {
 
 .text-neutral-600\/90 {
   color: rgb(82 82 82 / 0.9);
+}
+
+.text-slate-300 {
+  --tw-text-opacity: 1;
+  color: rgb(203 213 225 / var(--tw-text-opacity));
 }
 
 .underline {
@@ -2664,6 +2673,10 @@ img.error {
 
   .dark\:bg-slate-500\/20 {
     background-color: rgb(100 116 139 / 0.2);
+  }
+
+  .dark\:fill-slate-300 {
+    fill: #cbd5e1;
   }
 
   .dark\:text-slate-100 {
