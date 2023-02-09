@@ -83,9 +83,9 @@ app.UseStaticFiles(
 )
 
 app.UseGiraffe(choose [
-    routeCi "/feed" >=> publicResponseCaching (600) None >=> Feed.handle Feed.RSS
-    routeCi "/feed/rss" >=> publicResponseCaching (600) None >=> Feed.handle Feed.RSS
-    routeCi "/feed/atom" >=> publicResponseCaching (600) None >=> Feed.handle Feed.ATOM
+    routeCi "/feed" >=> Feed.handle Feed.RSS
+    routeCi "/feed/rss" >=> Feed.handle Feed.RSS
+    routeCi "/feed/atom" >=> Feed.handle Feed.ATOM
 ])
 app.UseGiraffe(UI.Routes.uiRoutes)
 

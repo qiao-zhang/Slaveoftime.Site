@@ -23,8 +23,8 @@
 		<Compile Include="UI\Pages\Posts\A post for describe the post itself\Index.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo21.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo22.fs" />
-		<Compile Include="UI\Pages\PostDetailPage.fs" />
 		<Compile Include="UI\Pages\PostListPage.fs" />
+		<Compile Include="UI\Pages\PostDetailPage.fs" />
 		<Compile Include="UI\Routes.fs" />
 		<Compile Include="Feed.fs" />
 		<Compile Include="DbCheck.fs" />
