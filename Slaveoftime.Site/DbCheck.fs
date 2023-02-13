@@ -2,6 +2,7 @@
 
 open System
 open System.IO
+open System.Text
 open System.Linq
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -54,42 +55,122 @@ type DbCheck =
         db.Database.Migrate()
 
 
-        logger.LogInformation("Fetch post from physical files")
-        Directory.GetFiles(postsDir, "*.md", EnumerationOptions(RecurseSubdirectories = true))
-        |> Seq.iter (fun path ->
-            logger.LogInformation("Process {file} for post", path)
-            let file = File.ReadLines path
-            if Seq.head file = "---" then
-                try
-                    let metaLines = file |> Seq.skip 1 |> Seq.takeWhile ((<>) "---")
-                    // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
-                    let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
-                    let baseUrl = host </+> "blog" </+> relativeUrl
-                    let htmlPath = Path.GetDirectoryName path </> Path.GetFileNameWithoutExtension path + ".html"
+        if isVersionChanged then
+            logger.LogInformation("Fetch post from physical files")
+            Directory.GetFiles(postsDir, "*.md", EnumerationOptions(RecurseSubdirectories = true))
+            |> Seq.iter (fun path ->
+                logger.LogInformation("Process {file} for post", path)
+                let file = File.ReadLines path
+                if Seq.head file = "---" then
+                    try
+                        let metaLines = file |> Seq.skip 1 |> Seq.takeWhile ((<>) "---")
+                        // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
+                        let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
+                        let baseUrl = host </+> "blog" </+> relativeUrl
+                        let htmlPath = Path.GetDirectoryName path </> Path.GetFileNameWithoutExtension path + ".html"
 
-                    // Parse post meta
-                    metaLines
-                    |> String.concat Environment.NewLine
-                    |> deserializer.Deserialize<PostMeta>
-                    |> fun meta ->
-                        if String.IsNullOrEmpty meta.MainImage |> not then
-                            { meta with MainImage = relativeUrl </+> meta.MainImage }
-                        else
-                            meta
-                    |> addOrUpdatePost (PostType.Static htmlPath)
+                        // Parse post meta
+                        metaLines
+                        |> String.concat Environment.NewLine
+                        |> deserializer.Deserialize<PostMeta>
+                        |> fun meta ->
+                            if String.IsNullOrEmpty meta.MainImage |> not then
+                                { meta with MainImage = relativeUrl </+> meta.MainImage }
+                            else
+                                meta
+                        |> addOrUpdatePost (PostType.Static htmlPath)
 
-                    // Convert post detail
-                    file
-                    |> Seq.skip (2 + metaLines.Count())
-                    |> String.concat Environment.NewLine
-                    |> fun lines -> Markdown.ConvertToHtml(baseUrl, lines)
-                    |> fun html -> File.WriteAllText(htmlPath, html)
+                        // Convert post detail
+                        file
+                        |> Seq.skip (2 + metaLines.Count())
+                        |> String.concat Environment.NewLine
+                        |> fun lines -> Markdown.ConvertToHtml(baseUrl, lines)
+                        |> fun html -> File.WriteAllText(htmlPath, html)
 
-                    logger.LogInformation("Found post {path}", path)
+                        logger.LogInformation("Found post {path}", path)
 
-                with ex ->
-                    logger.LogError(ex, "Parse post failed: {path}", path)
-        )
+                    with ex ->
+                        logger.LogError(ex, "Parse post failed: {path}", path)
+            )
+
+            logger.LogInformation("Prepare code blocks")
+            Directory.GetFiles(postsDir, "*.fs", EnumerationOptions(RecurseSubdirectories = true))
+            |> Seq.iter (fun path ->
+                logger.LogInformation("Process {file} for code blocks", path)
+                let file = File.ReadLines path
+                
+                let mutable lines = StringBuilder()
+                let mutable codeBlockName = None
+                let mutable indentLength = None
+
+                for line in file do
+                    try
+                        if codeBlockName.IsNone && line.Trim().StartsWith(codeBlockStartPrefix) then
+                            codeBlockName <- Some(line.Substring(line.IndexOf(codeBlockStartPrefix) + codeBlockStartPrefix.Length).Trim())
+                            lines.AppendLine "```fsharp" |> ignore
+
+                        else if codeBlockName.IsSome && line.Trim() <> codeBlockEndPrefix then
+                            if indentLength.IsNone then
+                                indentLength <- Some(line.Length - line.TrimStart().Length)
+                            lines.AppendLine(if line.Length > indentLength.Value then line.Substring(indentLength.Value) else line) |> ignore
+
+                        else if codeBlockName.IsSome then
+                            lines.AppendLine "```" |> ignore
+                            // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
+                            let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
+                            let baseUrl = host </+> "blog" </+> relativeUrl
+                            let htmlPath = Path.GetDirectoryName path </> codeBlockName.Value + ".html"
+
+                            let codeBlock = Markdown.ConvertToHtml(baseUrl, lines.ToString())
+                            File.WriteAllText(htmlPath, codeBlock)
+
+                            lines.Clear() |> ignore
+                            codeBlockName <- None
+                            indentLength <- None
+
+                            logger.LogInformation("Found {codeblock}", codeBlockName)
+
+                    with ex ->
+                        logger.LogError(ex, "Parse codeblock failed: {path}", path)
+            )
+
+            logger.LogInformation("Optimize images")
+            Directory.EnumerateFiles(postsDir, "*", SearchOption.AllDirectories)
+            |> Seq.filter (
+                function
+                | SafeStringEndWithCi ".png"
+                | SafeStringEndWithCi ".jpeg" -> true
+                | _ -> false
+            )
+            |> Seq.iter (fun file ->
+                let info = FileInfo file
+                // Only optimize image size is bigger than 200kb
+                if info.Length > 1024L * 200L then
+                    try
+                        logger.LogInformation("Optimize image: {file}", file)
+                        let postfix = "-original"
+                        let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
+
+                        let originalFile =
+                            if hasOriginal then
+                                file
+                            else
+                                Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
+                    
+                        let lowQualityFile =
+                            if hasOriginal then
+                                Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
+                            else
+                                file
+
+                        if not hasOriginal then File.Copy(file, originalFile, true)
+
+                        use img = Image.Load originalFile
+                        img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
+
+                    with ex ->
+                        logger.LogError(ex, "Optimize image: {file} failed", file)
+            )
 
 
         logger.LogInformation("Fetch post from reflection")
@@ -116,46 +197,9 @@ type DbCheck =
                     logger.LogError(ex, "Parse post failed: {name}", ty.Name)
         )
 
+
         logger.LogInformation("Save database changes")
         db.SaveChanges() |> ignore
 
-
-        logger.LogInformation("Optimize images")
-        Directory.EnumerateFiles(postsDir, "*", SearchOption.AllDirectories)
-        |> Seq.filter (
-            function
-            | SafeStringEndWithCi ".png"
-            | SafeStringEndWithCi ".jpeg" -> true
-            | _ -> false
-        )
-        |> Seq.iter (fun file ->
-            let info = FileInfo file
-            // Only optimize image size is bigger than 200kb
-            if info.Length > 1024L * 200L then
-                try
-                    logger.LogInformation("Optimize image: {file}", file)
-                    let postfix = "-original"
-                    let hasOriginal = Path.GetFileNameWithoutExtension(file).EndsWith(postfix)
-
-                    let originalFile =
-                        if hasOriginal then
-                            file
-                        else
-                            Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
-                    
-                    let lowQualityFile =
-                        if hasOriginal then
-                            Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
-                        else
-                            file
-
-                    if not hasOriginal then File.Copy(file, originalFile, true)
-
-                    use img = Image.Load originalFile
-                    img.SaveAsWebp(lowQualityFile, WebpEncoder(Quality = 1))
-
-                with ex ->
-                    logger.LogError(ex, "Optimize image: {file} failed", file)
-        )
 
         sp

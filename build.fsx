@@ -36,17 +36,10 @@ pipeline "dev" {
     checkEnv
     stage "open-tool" {
         paralle
-        run "code ."
-        stage "cmds" {
-            paralle
-            workingDir serverPath
-            run "dotnet watch run"
-            run "pnpm tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --watch"
-            run (fun ctx -> asyncResult {
-                do! Async.Sleep 5000 |> Async.map Ok
-                do! ctx.OpenBrowser "https://localhost:6001"
-            })
-        }
+        noPrefixForStep
+        workingDir serverPath
+        run "dotnet watch run"
+        run "pnpm tailwindcss -i ./wwwroot/css/tailwind-source.css -o ./wwwroot/css/tailwind-generated.css --watch"
     }
     runIfOnlySpecified
 }

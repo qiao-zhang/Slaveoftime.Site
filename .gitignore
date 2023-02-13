@@ -372,3 +372,4 @@ deploy/
 /Slaveoftime.Site/UI/Pages/Posts/**/*.html
 /Slaveoftime.Site/feed-*.xml
 /Slaveoftime.Site/version-stamp
+/Slaveoftime.Site/wwwroot/css/tailwind-generated.css

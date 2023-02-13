@@ -3,8 +3,10 @@
 open FSharp.Data.Adaptive
 open System
 open Fun.Blazor
+open Slaveoftime.UI.Components
 open Slaveoftime.UI.Components.PostView
 
+// code-block Demo22Counter
 [<FunBlazorCustomElement>]
 type Demo22Counter() =
     inherit FunBlazorComponent()
@@ -21,6 +23,7 @@ type Demo22Counter() =
                 "Increase"
             }
         }
+// code-block-end
 
 type Demo22 =
 
@@ -36,7 +39,13 @@ type Demo22 =
             IsHidden = false
         }
 
-        static member View = div {
-            p { "Demo22" }
-            html.customElement<Demo22Counter> ()
-        }
+        static member View = 
+            let relativePath = "Demo2"
+            let markdown x = Markdown.RenderForBlog(relativePath, x)
+            let codeblock x = Markdown.RenderCodeBlockForBlog(relativePath, x)
+            div {
+                p { "Demo22" }
+                html.customElement<Demo22Counter> ()
+                markdown "Below is the source code for it:"
+                codeblock "Demo22Counter"
+            }

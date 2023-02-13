@@ -21,9 +21,9 @@ type Layout =
                 defaultArg
                     headerNode
                     (fragment {
-                        title { "GiraffeHtmxBlazor" }
-                        headerKeywords "slaveoftime,blog,dotnet,fsharp"
-                        headerDescription "This site is my personal blogs, I will try some technology on this site when needed."
+                        headerTitle siteTitle
+                        headerKeywords (String.concat "," siteKeywords)
+                        headerDescription siteDescription
                     })
 
             html.fragment [

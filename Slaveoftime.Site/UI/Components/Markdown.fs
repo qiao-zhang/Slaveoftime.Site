@@ -1,6 +1,5 @@
 ﻿namespace Slaveoftime.UI.Components
 
-open System
 open System.IO
 open Markdig
 open Markdig.Parsers
@@ -30,3 +29,10 @@ type Markdown =
     static member RenderForBlog(relativeSlug: string, markdown: string) =
         let baseUrl = host </+> "blog" </+> relativeSlug
         html.raw (Markdown.ConvertToHtml(baseUrl, markdown))
+
+
+    static member RenderCodeBlockForBlog(relativeSlug: string, file: string) =
+        try
+            html.raw (File.ReadAllText(postsDir </> relativeSlug.Replace('/', Path.PathSeparator) </> file + ".html"))
+        with ex ->
+            html.none

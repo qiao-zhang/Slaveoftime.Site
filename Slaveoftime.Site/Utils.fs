@@ -20,19 +20,24 @@ let inline (<?>) (x: 'T voption) (def: 'T) =
     | ValueSome x -> x
     | _ -> def
 
+let isDebug =
+#if DEBUG
+    true
+#else
+    false
+#endif
 
 let postsDir = DirectoryInfo("UI/Pages/Posts").FullName
 
 let versionStampFile = "version-stamp"
 let versionStamp = FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime.ToString()
 
+let isVersionChanged = File.Exists versionStampFile |> not || File.ReadAllText versionStampFile <> versionStamp
 
-let host =
-#if DEBUG
-    "https://localhost:6001"
-#else
-    "https://www.slaveoftime.fun"
-#endif
+let codeBlockStartPrefix = "// code-block "
+let codeBlockEndPrefix = "// code-block-end"
+
+let host = if isDebug then "https://localhost:6001" else "https://www.slaveoftime.fun"
 
 
 let composeUrl (baseUrl: string) (url: string) =
