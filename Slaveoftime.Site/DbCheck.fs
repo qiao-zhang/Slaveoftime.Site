@@ -150,11 +150,11 @@ type DbCheck =
                             let codeBlock = Markdown.ConvertToHtml(baseUrl, lines.ToString())
                             File.WriteAllText(htmlPath, codeBlock)
 
+                            logger.LogInformation("Found {codeblock}", codeBlockName)
+                            
                             lines.Clear() |> ignore
                             codeBlockName <- None
                             indentLength <- None
-
-                            logger.LogInformation("Found {codeblock}", codeBlockName)
 
                     with ex ->
                         logger.LogError(ex, "Parse codeblock failed: {path}", path)

@@ -17,7 +17,7 @@
 		<Compile Include="UI\Components\PostView\PostLikeSurvey.fs" />
 		<Compile Include="UI\Components\PostView\PostList.fs" />
 		<Compile Include="UI\Components\PostView\PostDetail.fs" />
-		<None Include="UI\Pages\Posts\**" Exclude="UI\Pages\Posts\**\*.fs">
+		<None Include="UI\Pages\Posts\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<Compile Include="UI\Pages\Posts\A post for describe the post itself\Index.fs" />
