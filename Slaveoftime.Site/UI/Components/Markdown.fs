@@ -35,9 +35,12 @@ type Markdown =
         try
             section {
                 class' "relative"
-                p {
-                    class' "absolute -top-4 right-0 py-1 px-2 bg-primary rounded-bl-lg text-xs text-white"
-                    file
+                div {
+                    class' "absolute -top-6 left-1 right-1 flex items-center justify-center"
+                    p {
+                        class' "py-1 px-2 bg-primary rounded-full text-xs opacity-75 text-white truncate"
+                        file
+                    }
                 }
                 html.raw (File.ReadAllText(postsDir </> relativeSlug.Replace('/', Path.PathSeparator) </> file + ".html"))
             }
