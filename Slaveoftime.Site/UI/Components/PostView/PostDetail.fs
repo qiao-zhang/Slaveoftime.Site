@@ -36,11 +36,11 @@ type PostDetail =
                     if post.Likes > 0 then PostView.LiksView post.Likes
                 ]
             }
-            if String.IsNullOrEmpty post.MainImage |> not then
-                img {
-                    class' "mx-auto object-fill object-center mt-5"
-                    src (host <//> "blog" <//> post.MainImage)
-                }
+            //if String.IsNullOrEmpty post.MainImage |> not then
+            //    img {
+            //        class' "mx-auto object-fill object-center mt-5"
+            //        src (host <//> "blog" <//> post.MainImage)
+            //    }
         ]
 
     static member private PostContent(post: Post) =
