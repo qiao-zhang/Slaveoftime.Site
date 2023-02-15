@@ -27,7 +27,7 @@ type Markdown =
 
 
     static member RenderForBlog(relativeSlug: string, markdown: string) =
-        let baseUrl = host </+> "blog" </+> relativeSlug
+        let baseUrl = host <//> "blog" <//> relativeSlug
         html.raw (Markdown.ConvertToHtml(baseUrl, markdown))
 
 

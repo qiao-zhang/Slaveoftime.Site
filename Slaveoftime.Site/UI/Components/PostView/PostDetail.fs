@@ -16,7 +16,7 @@ type PostDetail =
     static member private PostSummary(post: Post) =
         html.fragment [
             div {
-                class' "flex flex-row justify-center mt-10"
+                class' "flex flex-wrap items-center gap-2 justify-center mt-10"
                 PostView.Keywords post.Keywords
             }
             h1 {
@@ -39,7 +39,7 @@ type PostDetail =
             if String.IsNullOrEmpty post.MainImage |> not then
                 img {
                     class' "mx-auto object-fill object-center mt-5"
-                    src (host </+> "blog" </+> post.MainImage)
+                    src (host <//> "blog" <//> post.MainImage)
                 }
         ]
 
@@ -133,7 +133,12 @@ type PostDetail =
             | Some post -> div {
                 id "post-detail"
                 class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
-                childContent [ stylesheet $"{host}/css/tailwind-generated.css"; PostDetail.PostContent post; PostDetail.Scripts ]
+                childContent [ 
+                    PostDetail.PostContent post
+                    stylesheet $"{host}/css/tailwind-generated.css"; 
+                    PostDetail.Scripts 
+                ]
               }
+
             | None -> PostDetail.PostNotFound
         )

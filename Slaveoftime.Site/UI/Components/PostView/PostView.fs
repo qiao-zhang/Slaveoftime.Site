@@ -4,6 +4,7 @@ namespace Slaveoftime.UI.Components.PostView
 
 open System
 open Fun.Blazor
+open Slaveoftime
 
 
 [<RequireQualifiedAccess>]
@@ -30,17 +31,13 @@ type IDynamicPost =
 
 type PostView =
 
-    static member Keywords(keywords: string) =
-        div {
-            class' "flex flex-wrap items-center gap-2"
-            childContent [
-                for keyword in keywords.Split [| ','; ';' |] do
-                    span {
-                        class' "badge badge-primary"
-                        keyword
-                    }
-            ]
-        }
+    static member Keywords(keywords: string) = html.fragment [
+        for keyword in keywords.Split keywordsSpliter do
+            span {
+                class' "badge badge-primary"
+                keyword
+            }
+    ]
 
     static member ViewCount(count: int) = span {
         class' "badge badge-accent badge-sm opacity-90"

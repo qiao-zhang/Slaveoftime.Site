@@ -51,11 +51,7 @@ type DbCheck =
             post.IsActive <- not meta.IsHidden
 
 
-        logger.LogInformation("Migrate database")
-        db.Database.Migrate()
-
-
-        if isVersionChanged then
+        let fetchPostsFromFiles () =
             logger.LogInformation("Fetch post from physical files")
             Directory.GetFiles(postsDir, "*.md", EnumerationOptions(RecurseSubdirectories = true))
             |> Seq.iter (fun path ->
@@ -66,7 +62,7 @@ type DbCheck =
                         let metaLines = file |> Seq.skip 1 |> Seq.takeWhile ((<>) "---")
                         // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
                         let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
-                        let baseUrl = host </+> "blog" </+> relativeUrl
+                        let baseUrl = host <//> "blog" <//> relativeUrl
                         let htmlPath = Path.GetDirectoryName path </> Path.GetFileNameWithoutExtension path + ".html"
 
                         // Parse post meta
@@ -75,7 +71,7 @@ type DbCheck =
                         |> deserializer.Deserialize<PostMeta>
                         |> fun meta ->
                             if String.IsNullOrEmpty meta.MainImage |> not then
-                                { meta with MainImage = relativeUrl </+> meta.MainImage }
+                                { meta with MainImage = relativeUrl <//> meta.MainImage }
                             else
                                 meta
                         |> addOrUpdatePost (PostType.Static htmlPath)
@@ -93,6 +89,36 @@ type DbCheck =
                         logger.LogError(ex, "Parse post failed: {path}", path)
             )
 
+
+        let fetchPostsFromReflection (updateDb: bool) =
+            logger.LogInformation("Fetch post from reflection")
+            Assembly.GetExecutingAssembly().GetTypes()
+            |> Seq.iter (fun ty ->
+                if
+                    ty.Namespace <> null
+                    && ty.Namespace.StartsWith "Slaveoftime.UI.Pages.Posts"
+                    && ty.GetInterface(nameof IDynamicPost) <> null
+                then
+                    try
+                        logger.LogInformation("Process {type} for dynamic post", ty.Name)
+
+                        let meta = ty.GetProperty(nameof IDynamicPost.Meta).GetValue(null) :?> PostMeta
+                        let view = ty.GetProperty(nameof IDynamicPost.View).GetValue(null) :?> NodeRenderFragment
+
+                        if updateDb then
+                            addOrUpdatePost PostType.Dynamic meta
+                        
+                        // We can use the cached node to render for the specific post dynamically
+                        memoryCache.Set($"post-dynamic-{meta.Id}", view) |> ignore
+
+                        logger.LogInformation("Found post {name}", ty.Name)
+
+                    with ex ->
+                        logger.LogError(ex, "Parse post failed: {name}", ty.Name)
+            )
+
+
+        let prepareCodeBlocksForDynamicPost () =
             logger.LogInformation("Prepare code blocks")
             Directory.GetFiles(postsDir, "*.fs", EnumerationOptions(RecurseSubdirectories = true))
             |> Seq.iter (fun path ->
@@ -118,7 +144,7 @@ type DbCheck =
                             lines.AppendLine "```" |> ignore
                             // Because we copied all the files under UI/Pages/Posts and serve static files on /blog at the Startup.fs
                             let relativeUrl = Path.GetDirectoryName(path).Substring(postsDir.Length + 1).Replace("\\", "/")
-                            let baseUrl = host </+> "blog" </+> relativeUrl
+                            let baseUrl = host <//> "blog" <//> relativeUrl
                             let htmlPath = Path.GetDirectoryName path </> codeBlockName.Value + ".html"
 
                             let codeBlock = Markdown.ConvertToHtml(baseUrl, lines.ToString())
@@ -134,6 +160,8 @@ type DbCheck =
                         logger.LogError(ex, "Parse codeblock failed: {path}", path)
             )
 
+
+        let optimizeImages () =
             logger.LogInformation("Optimize images")
             Directory.EnumerateFiles(postsDir, "*", SearchOption.AllDirectories)
             |> Seq.filter (
@@ -173,33 +201,19 @@ type DbCheck =
             )
 
 
-        logger.LogInformation("Fetch post from reflection")
-        Assembly.GetExecutingAssembly().GetTypes()
-        |> Seq.iter (fun ty ->
-            if
-                ty.Namespace <> null
-                && ty.Namespace.StartsWith "Slaveoftime.UI.Pages.Posts"
-                && ty.GetInterface(nameof IDynamicPost) <> null
-            then
-                try
-                    logger.LogInformation("Process {type} for dynamic post", ty.Name)
+        if isVersionChanged then
+            logger.LogInformation("Migrate database")
+            db.Database.Migrate()
+            
+            fetchPostsFromFiles ()
+            fetchPostsFromReflection true
+            prepareCodeBlocksForDynamicPost ()
+            optimizeImages ()
+            
+            logger.LogInformation("Save database changes")
+            db.SaveChanges() |> ignore
 
-                    let meta = ty.GetProperty(nameof IDynamicPost.Meta).GetValue(null) :?> PostMeta
-                    let view = ty.GetProperty(nameof IDynamicPost.View).GetValue(null) :?> NodeRenderFragment
-
-                    addOrUpdatePost PostType.Dynamic meta
-                    // We can use the cached node to render for the specific post dynamically
-                    memoryCache.Set($"post-dynamic-{meta.Id}", view) |> ignore
-
-                    logger.LogInformation("Found post {name}", ty.Name)
-
-                with ex ->
-                    logger.LogError(ex, "Parse post failed: {name}", ty.Name)
-        )
-
-
-        logger.LogInformation("Save database changes")
-        db.SaveChanges() |> ignore
-
+        else
+            fetchPostsFromReflection false
 
         sp

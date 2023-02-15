@@ -54,8 +54,8 @@ type PostListPage =
             Layout.Create(
                 headerNode = fragment {
                     headerTitle siteTitle
-                    headerKeywords siteDescription
-                    headerDescription (String.Join(",", siteKeywords))
+                    headerKeywords (String.Join(",", siteKeywords))
+                    headerDescription siteDescription
                     meta {
                         name "twitter:card"
                         content "summary"

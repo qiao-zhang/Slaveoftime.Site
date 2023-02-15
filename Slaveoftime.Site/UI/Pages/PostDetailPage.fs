@@ -25,7 +25,7 @@ type PostDetailPage =
                                 content "summary"
                             }
                         else
-                            let imageUrl = host </+> "blog" </+> post.MainImage
+                            let imageUrl = host <//> "blog" <//> post.MainImage
                             meta {
                                 name "twitter:card"
                                 content "summary_large_image"

@@ -1,8 +1,8 @@
 [<AutoOpen>]
 module Slaveoftime.UI.Components.Common
 
-open System.IO
 open Fun.Blazor
+open Slaveoftime
 
 
 let inline lazyStylesheet path = link {
@@ -17,11 +17,11 @@ let inline headerTitle (str: string) = fragment {
     title { str }
     meta {
         name "twitter:creator"
-        content "slaveoftime"
+        content siteTitle
     }
     meta {
         name "twitter:site"
-        content "slaveoftime"
+        content siteTitle
     }
     meta {
         name "twitter:text:title"

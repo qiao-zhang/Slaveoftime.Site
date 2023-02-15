@@ -51,7 +51,7 @@ let generateFeedFile (sp: IServiceProvider) = task {
 
             // let mainImageFile = FileInfo(postsDir </> post.MainImage)
             // if String.IsNullOrEmpty post.MainImage |> not && mainImageFile.Exists then
-            //     item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri(host </+> "blog" </+> post.MainImage), "image", mainImageFile.Length))
+            //     item.Links.Add(SyndicationLink.CreateMediaEnclosureLink(Uri(host <//> "blog" <//> post.MainImage), "image", mainImageFile.Length))
 
             if String.IsNullOrEmpty post.Keywords |> not then
                 for keyword in post.Keywords.Split([| ','; ';' |]) do

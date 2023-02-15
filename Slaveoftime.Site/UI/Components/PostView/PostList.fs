@@ -34,7 +34,10 @@ type PostList =
                         PostView.LiksView post.Likes
                 ]
             }
-            PostView.Keywords post.Keywords
+            div {
+                class' "flex flex-wrap items-center gap-2"
+                PostView.Keywords post.Keywords
+            }
             p {
                 class' "dark:text-neutral-400/90 text-neutral-600/90 mt-2 text-sm"
                 post.Description

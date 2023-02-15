@@ -41,21 +41,23 @@ let host = if isDebug then "https://localhost:6001" else "https://www.slaveoftim
 
 
 let composeUrl (baseUrl: string) (url: string) =
-    let baseUrl = if baseUrl.EndsWith "/" then baseUrl else baseUrl + "/"
+    let baseUrl = (if baseUrl.EndsWith "/" then baseUrl else baseUrl + "/").Replace("\\", "/")
     if String.IsNullOrEmpty url then
         baseUrl
-    else if url.StartsWith "/" then
-        baseUrl + url.Substring(1)
-    elif url.StartsWith "./" then
-        baseUrl + url.Substring(2)
-    elif url.StartsWith("http://", StringComparison.CurrentCultureIgnoreCase) then
-        url
-    elif url.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase) then
-        url
     else
-        baseUrl + url
+        let url = url.Replace("\\", "/")
+        if url.StartsWith "/" then
+            baseUrl + url.Substring(1)
+        elif url.StartsWith "./" then
+            baseUrl + url.Substring(2)
+        elif url.StartsWith("http://", StringComparison.CurrentCultureIgnoreCase) then
+            url
+        elif url.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase) then
+            url
+        else
+            baseUrl + url
 
-let inline (</+>) url1 url2 = composeUrl url1 url2
+let inline (<//>) url1 url2 = composeUrl url1 url2
 
 
 let toSlug (title: string) =
@@ -75,3 +77,5 @@ let toSlug (title: string) =
 let siteTitle = "slaveOftime blogs"
 let siteDescription = "This site is my personal blogs, I will try some technology on this site when needed."
 let siteKeywords = [ "blog"; "vlog"; "developing"; "dotnet"; "csharp"; "fsharp" ]
+
+let keywordsSpliter = [| ','; ';' |]
