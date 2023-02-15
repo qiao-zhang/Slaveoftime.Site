@@ -33,6 +33,13 @@ type Markdown =
 
     static member RenderCodeBlockForBlog(relativeSlug: string, file: string) =
         try
-            html.raw (File.ReadAllText(postsDir </> relativeSlug.Replace('/', Path.PathSeparator) </> file + ".html"))
+            section {
+                class' "relative"
+                p {
+                    class' "absolute -top-4 right-0 py-1 px-2 bg-primary rounded-bl-lg text-xs text-white"
+                    file
+                }
+                html.raw (File.ReadAllText(postsDir </> relativeSlug.Replace('/', Path.PathSeparator) </> file + ".html"))
+            }
         with ex ->
             html.none
