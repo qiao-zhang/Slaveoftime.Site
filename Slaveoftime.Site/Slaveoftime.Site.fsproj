@@ -15,6 +15,7 @@
 		<Compile Include="UI\Components\PostView\PostView.fs" />
 		<Compile Include="UI\Components\PostView\PostViewCount.fs" />
 		<Compile Include="UI\Components\PostView\PostLikeSurvey.fs" />
+		<Compile Include="UI\Components\PostView\PostComment.fs" />
 		<Compile Include="UI\Components\PostView\PostList.fs" />
 		<Compile Include="UI\Components\PostView\PostDetail.fs" />
 		<None Include="UI\Pages\Posts\**">

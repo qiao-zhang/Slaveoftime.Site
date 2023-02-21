@@ -15,7 +15,7 @@ type SigninPage =
             let ctx = ctx.HttpContext
 
             let returnUrl =
-                match ctx.Request.Query.TryGetValue("ReturnUrl") with
+                match ctx.Request.Query.TryGetValue("returnUrl") with
                 | true, x -> x.ToString()
                 | _ -> "/"
 

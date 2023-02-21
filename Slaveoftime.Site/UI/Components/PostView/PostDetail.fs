@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Linq
 open Microsoft.Extensions.Caching.Memory
+open Fun.Htmx
 open Fun.Result
 open Fun.Blazor
 open Fun.Blazor.Operators
@@ -110,6 +111,12 @@ type PostDetail =
             div { class' "divider" }
             html.customElement<PostLikesSurvey> (delayMs = 5_000, attrs = (nameof Unchecked.defaultof<PostLikesSurvey>.post_id => post.Id.ToString()))
             div { class' "divider" }
+            div {
+                class' "my-2"
+                hxTrigger' (hxEvt.load, delayMs = 3000)
+                hxSwap_outerHTML
+                hxGet $"view/post/{post.Id}/comment"
+            }
             PostDetail.Scripts
         ]
     }
