@@ -2,7 +2,6 @@ namespace Slaveoftime.UI.Pages
 
 open System
 open Microsoft.AspNetCore.Http
-open Giraffe
 open Fun.Blazor
 open Fun.Htmx
 open Slaveoftime
@@ -14,6 +13,10 @@ type PostListPage =
     static member Create() =
         html.inject (fun (ctx: IHttpContextAccessor) ->
             let ctx = ctx.HttpContext
+            let searchQuery =
+                match ctx.Request.Query.TryGetValue("search") with
+                | true, q -> q.ToString()
+                | _ -> ""
 
             let node = div {
                 class' "sm:w-5/6 md:w-3/4 max-w-[720px] m-auto min-h-[500px]"
@@ -24,7 +27,7 @@ type PostListPage =
                             input {
                                 type' InputTypes.text
                                 name "search"
-                                value (ctx.TryGetQueryStringValue("search") |> Option.defaultValue "")
+                                value searchQuery
                                 placeholder "Search by title, keywords and description"
                                 hxTrigger' (hxEvt.keyboard.keyup, changed = true, delayMs = 500)
                                 hxGet "/view/post-list"

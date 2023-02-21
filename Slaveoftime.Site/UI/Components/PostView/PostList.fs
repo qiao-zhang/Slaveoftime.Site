@@ -3,17 +3,17 @@
 open System.Linq
 open Microsoft.AspNetCore.Http
 open FSharp.Data.Adaptive
-open Giraffe
 open Fun.Blazor
 open Slaveoftime.Db
 
 type PostList =
-    
-    static member private PostCard (post: Post) = div {
+
+    static member private PostCard(post: Post) = div {
         class' "px-6 py-5 rounded-md bg-gray-600/10 mb-5"
         childContent [
             h2 {
-                class' "text-primary/90 hover:text-primary first-letter:text-2xl first-letter:text-primary first-letter:uppercase underline text-xl font-semibold"
+                class'
+                    "text-primary/90 hover:text-primary first-letter:text-2xl first-letter:text-primary first-letter:uppercase underline text-xl font-semibold"
                 a {
                     //href $"blog/{post.Id}?title={post.Title}"
                     href $"blog/{post.Slug}" // To use slug we have to make sure our title is unique
@@ -28,10 +28,8 @@ type PostList =
                         class' "font-semibold"
                         post.Author
                     }
-                    if post.ViewCount > 0 then
-                        PostView.ViewCount post.ViewCount
-                    if post.Likes > 0 then
-                        PostView.LiksView post.Likes
+                    if post.ViewCount > 0 then PostView.ViewCount post.ViewCount
+                    if post.Likes > 0 then PostView.LiksView post.Likes
                 ]
             }
             div {
@@ -45,20 +43,17 @@ type PostList =
         ]
     }
 
-    static member Create() = 
+    static member Create() =
         html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor) ->
             let ctx = ctx.HttpContext
 
             let postsQuery =
-                match ctx.TryGetQueryStringValue("search") with
-                | Some query ->
-                    let query = query.ToLower()
-                    db.Posts
-                        .Where(fun x -> 
-                            x.Title.ToLower().Contains(query) 
-                            || x.Keywords.ToLower().Contains(query) 
-                            || x.Description.ToLower().Contains(query)
-                        )
+                match ctx.Request.Query.TryGetValue("search") with
+                | true, query ->
+                    let query = query.ToString().ToLower()
+                    db.Posts.Where(fun x ->
+                        x.Title.ToLower().Contains(query) || x.Keywords.ToLower().Contains(query) || x.Description.ToLower().Contains(query)
+                    )
 
                 | _ -> db.Posts
 
@@ -70,7 +65,5 @@ type PostList =
                     "No posts are found"
                 }
             else
-                posts
-                |> Seq.map PostList.PostCard
-                |> html.fragment
+                posts |> Seq.map PostList.PostCard |> html.fragment
         )

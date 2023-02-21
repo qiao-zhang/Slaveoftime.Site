@@ -6,15 +6,17 @@ open System.Text.Unicode
 open System.Text.Encodings.Web
 open System.Reflection
 open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Authentication.Cookies
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.WebEncoders
 open Microsoft.Extensions.FileProviders
+open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
 open SixLabors.ImageSharp.Web.DependencyInjection
-open Giraffe
 open Serilog
 open Serilog.Events
+open Fun.AspNetCore
 open Slaveoftime
 open Slaveoftime.Db
 
@@ -30,6 +32,7 @@ Log.Logger <-
 
 let builder = WebApplication.CreateBuilder(Environment.GetCommandLineArgs())
 let host = builder.Host
+let config = builder.Configuration
 let services = builder.Services
 
 host.UseSerilog()
@@ -38,7 +41,6 @@ services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettin
 services.AddDbContext<SlaveoftimeDb>(fun options -> options.UseSqlite("Data Source=Slaveofitme.db") |> ignore)
 services.AddMemoryCache()
 
-services.AddGiraffe()
 services.AddControllersWithViews()
 services.AddServerSideBlazor(fun options -> options.RootComponents.RegisterCustomElementForFunBlazor(Assembly.GetExecutingAssembly()))
 services.AddFunBlazorServer()
@@ -49,6 +51,22 @@ services.AddResponseCaching(fun c -> c.MaximumBodySize <- 1024L * 1024L * 5L)
 services.AddImageSharp()
 services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettings <- new TextEncoderSettings(UnicodeRanges.All))
 
+if config.GetSection("auth") <> null then
+    let auth =
+        services
+            .AddAuthentication(fun options -> options.DefaultScheme <- CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(fun options ->
+                options.LoginPath <- "/signin"
+                options.LogoutPath <- "/signout"
+            )
+
+    if config.GetSection("auth:github") <> null then
+        auth.AddGitHub(fun options ->
+            options.ClientId <- config.GetValue("auth:github:clientId")
+            options.ClientSecret <- config.GetValue("auth:github:clientSecret")
+            options.Scope.Add("user:email")
+        )
+        |> ignore
 
 let app = builder.Build()
 
@@ -77,14 +95,10 @@ app.UseStaticFiles(
     StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
 )
 
-app.UseGiraffe(
-    choose [
-        routeCi "/feed" >=> Feed.handle Feed.RSS
-        routeCi "/feed/rss" >=> Feed.handle Feed.RSS
-        routeCi "/feed/atom" >=> Feed.handle Feed.ATOM
-    ]
-)
-app.UseGiraffe(UI.Routes.uiRoutes)
+app.UseAuthentication()
+app.UseAuthorization()
+
+app.MapGroup(Endpoints.endpoints)
 
 app.MapBlazorHub()
 

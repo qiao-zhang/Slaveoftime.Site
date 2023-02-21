@@ -47,9 +47,7 @@ pipeline "dev" {
 
 pipeline "deploy" {
     description $"Publish to folder: {deployDir}. You can enable deploy to some cloud by yourshelf."
-    stage "deploy-env" {
-        run "npm install pnpm -g"
-    }
+    stage "deploy-env" { run "npm install pnpm -g" }
     checkEnv
     stage "bundle" {
         workingDir serverPath

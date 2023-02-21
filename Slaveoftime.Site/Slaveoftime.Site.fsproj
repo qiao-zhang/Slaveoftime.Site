@@ -23,27 +23,30 @@
 		<Compile Include="UI\Pages\Posts\A post for describe the post itself\Index.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo21.fs" />
 		<Compile Include="UI\Pages\Posts\Demo2\Demo22.fs" />
+		<Compile Include="UI\Pages\SigninPage.fs" />
 		<Compile Include="UI\Pages\PostListPage.fs" />
 		<Compile Include="UI\Pages\PostDetailPage.fs" />
-		<Compile Include="UI\Routes.fs" />
 		<Compile Include="Feed.fs" />
 		<Compile Include="DbCheck.fs" />
+		<Compile Include="Authenticate.fs" />
+		<Compile Include="Endpoints.fs" />
 		<Compile Include="Startup.fs" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="7.0.0" />
+		<PackageReference Include="Fun.AspNetCore.Blazor" Version="0.1.1" />
 		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta007" />
 		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta007" />
 		<PackageReference Include="Fun.Blazor.Server" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Htmx" Version="3.0.0-beta003" />
 		<PackageReference Include="Markdig" Version="0.30.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3" />
 		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
 		<PackageReference Include="SixLabors.ImageSharp.Web" Version="2.0.2" />
 		<PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
-		<PackageReference Include="YamlDotNet" Version="12.3.1" />
-		<PackageReference Include="Giraffe" Version="6.0.0" />
+		<PackageReference Include="YamlDotNet" Version="13.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -51,7 +54,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="FSharp.Core" Version="7.0.0" />
+	  <PackageReference Update="FSharp.Core" Version="7.0.200" />
 	</ItemGroup>
 
 </Project>

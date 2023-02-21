@@ -105,9 +105,8 @@ type DbCheck =
                         let meta = ty.GetProperty(nameof IDynamicPost.Meta).GetValue(null) :?> PostMeta
                         let view = ty.GetProperty(nameof IDynamicPost.View).GetValue(null) :?> NodeRenderFragment
 
-                        if updateDb then
-                            addOrUpdatePost PostType.Dynamic meta
-                        
+                        if updateDb then addOrUpdatePost PostType.Dynamic meta
+
                         // We can use the cached node to render for the specific post dynamically
                         memoryCache.Set($"post-dynamic-{meta.Id}", view) |> ignore
 
@@ -124,7 +123,7 @@ type DbCheck =
             |> Seq.iter (fun path ->
                 logger.LogInformation("Process {file} for code blocks", path)
                 let file = File.ReadLines path
-                
+
                 let mutable lines = StringBuilder()
                 let mutable codeBlockName = None
                 let mutable indentLength = None
@@ -138,7 +137,13 @@ type DbCheck =
                         else if codeBlockName.IsSome && line.Trim() <> codeBlockEndPrefix then
                             if indentLength.IsNone then
                                 indentLength <- Some(line.Length - line.TrimStart().Length)
-                            lines.AppendLine(if line.Length > indentLength.Value then line.Substring(indentLength.Value) else line) |> ignore
+                            lines.AppendLine(
+                                if line.Length > indentLength.Value then
+                                    line.Substring(indentLength.Value)
+                                else
+                                    line
+                            )
+                            |> ignore
 
                         else if codeBlockName.IsSome then
                             lines.AppendLine "```" |> ignore
@@ -151,7 +156,7 @@ type DbCheck =
                             File.WriteAllText(htmlPath, codeBlock)
 
                             logger.LogInformation("Found {codeblock}", codeBlockName)
-                            
+
                             lines.Clear() |> ignore
                             codeBlockName <- None
                             indentLength <- None
@@ -184,7 +189,7 @@ type DbCheck =
                                 file
                             else
                                 Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension file + postfix + Path.GetExtension file
-                    
+
                         let lowQualityFile =
                             if hasOriginal then
                                 Path.GetDirectoryName file </> Path.GetFileNameWithoutExtension(file).Replace(postfix, "") + Path.GetExtension file
@@ -204,12 +209,12 @@ type DbCheck =
         if isVersionChanged then
             logger.LogInformation("Migrate database")
             db.Database.Migrate()
-            
+
             fetchPostsFromFiles ()
             fetchPostsFromReflection true
             prepareCodeBlocksForDynamicPost ()
             optimizeImages ()
-            
+
             logger.LogInformation("Save database changes")
             db.SaveChanges() |> ignore
 

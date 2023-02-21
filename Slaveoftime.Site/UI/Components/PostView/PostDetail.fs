@@ -36,11 +36,11 @@ type PostDetail =
                     if post.Likes > 0 then PostView.LiksView post.Likes
                 ]
             }
-            //if String.IsNullOrEmpty post.MainImage |> not then
-            //    img {
-            //        class' "mx-auto object-fill object-center mt-5"
-            //        src (host <//> "blog" <//> post.MainImage)
-            //    }
+        //if String.IsNullOrEmpty post.MainImage |> not then
+        //    img {
+        //        class' "mx-auto object-fill object-center mt-5"
+        //        src (host <//> "blog" <//> post.MainImage)
+        //    }
         ]
 
     static member private PostContent(post: Post) =
@@ -133,11 +133,7 @@ type PostDetail =
             | Some post -> div {
                 id "post-detail"
                 class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
-                childContent [ 
-                    PostDetail.PostContent post
-                    stylesheet $"{host}/css/tailwind-generated.css"; 
-                    PostDetail.Scripts 
-                ]
+                childContent [ PostDetail.PostContent post; stylesheet $"{host}/css/tailwind-generated.css"; PostDetail.Scripts ]
               }
 
             | None -> PostDetail.PostNotFound

@@ -10,10 +10,9 @@ open System.ServiceModel.Syndication
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.EntityFrameworkCore
-open FSharp.Data
-open Giraffe
 open Slaveoftime
 open Slaveoftime.Db
+open Microsoft.AspNetCore.Http
 
 
 type FeedType =
@@ -96,15 +95,11 @@ let generateFeedFile (sp: IServiceProvider) = task {
 }
 
 
-let handle feedType : HttpHandler =
-    fun nxt ctx -> task {
+let handle feedType =
+    Func<_>(fun () -> task {
         let fileName = FileInfo(feedCacheFile feedType)
         if fileName.Exists then
-            return!
-                (setHttpHeader HttpResponseHeaders.ContentType "application/xml; charset=utf-8"
-                 >=> streamFile true fileName.FullName None (Some fileName.LastWriteTime))
-                    nxt
-                    ctx
+            return Results.File(fileName.FullName, contentType = "application/xml", lastModified = fileName.LastWriteTime)
         else
-            return! RequestErrors.NOT_FOUND "Feed is not ready yet" nxt ctx
-    }
+            return Results.NotFound "Feed is not ready yet"
+    })
