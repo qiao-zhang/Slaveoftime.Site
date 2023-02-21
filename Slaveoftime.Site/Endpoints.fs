@@ -29,7 +29,7 @@ let endpoints =
             }
         }
 
-        get "/blog/{id}" { handle (fun (id: Guid) -> Results.View(PostDetailPage.Create id)) }
+        get "/blog/{id:guid}" { handle (fun (id: Guid) -> Results.View(PostDetailPage.Create id)) }
         get "/blog/{slug}" { handle (fun (slug: string) -> Results.View(PostDetailPage.Create slug)) }
         get "/" { PostListPage.Create() }
     }

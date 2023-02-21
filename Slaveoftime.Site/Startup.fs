@@ -51,7 +51,7 @@ services.AddResponseCaching(fun c -> c.MaximumBodySize <- 1024L * 1024L * 5L)
 services.AddImageSharp()
 services.Configure(fun (options: WebEncoderOptions) -> options.TextEncoderSettings <- new TextEncoderSettings(UnicodeRanges.All))
 
-if config.GetSection("auth") <> null then
+if config.GetSection("auth").Exists() then
     let auth =
         services
             .AddAuthentication(fun options -> options.DefaultScheme <- CookieAuthenticationDefaults.AuthenticationScheme)
@@ -60,7 +60,7 @@ if config.GetSection("auth") <> null then
                 options.LogoutPath <- "/signout"
             )
 
-    if config.GetSection("auth:github") <> null then
+    if config.GetSection("auth:github").Exists() then
         auth.AddGitHub(fun options ->
             options.ClientId <- config.GetValue("auth:github:clientId")
             options.ClientSecret <- config.GetValue("auth:github:clientSecret")
