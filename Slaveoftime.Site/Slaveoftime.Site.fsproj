@@ -12,6 +12,7 @@
 		<Compile Include="UI\Components\Footer.fs" />
 		<Compile Include="UI\Components\Layout.fs" />
 		<Compile Include="UI\Components\Markdown.fs" />
+		<Compile Include="UI\Components\Authenticate.fs" />
 		<Compile Include="UI\Components\PostView\PostView.fs" />
 		<Compile Include="UI\Components\PostView\PostViewCount.fs" />
 		<Compile Include="UI\Components\PostView\PostLikeSurvey.fs" />
