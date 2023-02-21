@@ -1,14 +1,18 @@
 ﻿namespace Slaveoftime.UI.Components.PostView
 
+open System
 open System.Linq
 open Microsoft.AspNetCore.Http
 open FSharp.Data.Adaptive
 open Fun.Blazor
 open Slaveoftime.Db
 
+[<CLIMutable>]
+type private PostWithCount = { Id: Guid; Count: int }
+
 type PostList =
 
-    static member private PostCard(post: Post) = div {
+    static member private PostCard(post: Post, commentCount: int) = div {
         class' "px-6 py-5 rounded-md bg-gray-600/10 mb-5"
         childContent [
             h2 {
@@ -30,6 +34,11 @@ type PostList =
                     }
                     if post.ViewCount > 0 then PostView.ViewCount post.ViewCount
                     if post.Likes > 0 then PostView.LiksView post.Likes
+                    if commentCount > 0 then
+                        span {
+                            class' "badge badge-accent badge-sm opacity-90"
+                            $"Comments {commentCount}"
+                        }
                 ]
             }
             div {
@@ -54,10 +63,12 @@ type PostList =
                     db.Posts.Where(fun x ->
                         x.Title.ToLower().Contains(query) || x.Keywords.ToLower().Contains(query) || x.Description.ToLower().Contains(query)
                     )
+                | _ -> db.Posts.AsQueryable()
 
-                | _ -> db.Posts
+            let postsQuery = postsQuery.Where(fun x -> x.IsActive)
 
-            let posts = postsQuery.Where(fun x -> x.IsActive).OrderByDescending(fun x -> x.CreatedTime).ToList()
+            let posts = postsQuery.OrderByDescending(fun x -> x.CreatedTime).ToList()
+            let postsCommentCount = postsQuery.Select(fun x -> { Id = x.Id; Count = x.Comments.Count }).ToList()
 
             if posts.Count = 0 then
                 div {
@@ -65,5 +76,12 @@ type PostList =
                     "No posts are found"
                 }
             else
-                posts |> Seq.map PostList.PostCard |> html.fragment
+                posts
+                |> Seq.map (fun p ->
+                    let count =
+                        postsCommentCount |> Seq.tryFind (fun x -> x.Id = p.Id) |> Option.map (fun x -> x.Count) |> Option.defaultValue 0
+                    p, count
+                )
+                |> Seq.map PostList.PostCard
+                |> html.fragment
         )

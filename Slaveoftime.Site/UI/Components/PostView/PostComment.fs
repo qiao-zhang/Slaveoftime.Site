@@ -120,7 +120,7 @@ type NewPostComment() =
                         class' "flex items-center justify-end my-2 gap-2"
                         button {
                             class' "btn btn-outline"
-                            onclick (fun _ -> addComment ())
+                            onclick (fun _ -> newComment.Publish(Some(Error "")))
                             "Cancel"
                         }
                         button {
@@ -131,6 +131,7 @@ type NewPostComment() =
                     }
                   }
                 | Some(Ok comment) -> renderComments 0 [ comment ] false
+                | Some(Error "") -> html.none
                 | Some(Error msg) -> div {
                     class' "my-2 alert alert-error"
                     msg
