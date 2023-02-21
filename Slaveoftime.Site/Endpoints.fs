@@ -9,9 +9,9 @@ open Slaveoftime.UI.Pages
 
 let endpoints =
     endpoints "" {
-        get "feed" { handle (fun () -> Feed.handle Feed.RSS) }
-        get "feed/rss" { handle (fun () -> Feed.handle Feed.RSS) }
-        get "feed/atom" { handle (fun () -> Feed.handle Feed.ATOM) }
+        get "feed" { handle (Feed.handle Feed.RSS) }
+        get "feed/rss" { handle (Feed.handle Feed.RSS) }
+        get "feed/atom" { handle (Feed.handle Feed.ATOM) }
 
         get "signin" { SigninPage.Create() }
         post "signin" { handle Authenticate.signin }
@@ -22,12 +22,12 @@ let endpoints =
 
         endpoints "view" {
             get "post-list" { PostList.Create() }
-            get "post/{id}" { handle (fun (id: Guid) -> PostDetail.Create id |> Results.View) }
-            get "post/feed/{id}" { handle (fun (id: Guid) -> PostDetail.CreateForFeed id) }
-            get "post/{postId}/comment" { handle (fun (postId: Guid) -> PostComment.Create postId |> Results.View) }
+            get "post/{id}" { handle (fun (id: Guid) -> Results.View(PostDetail.Create id)) }
+            get "post/feed/{id}" { handle (fun (id: Guid) -> Results.View(PostDetail.CreateForFeed id)) }
+            get "post/{postId}/comment" { handle (fun (postId: Guid) -> Results.View(PostComment.Create postId)) }
             post "post/{postId}/comment" {
                 authorization
-                handle (fun postId parentComment -> PostComment.NewCommentCustomElement(postId, parentComment) |> Results.View)
+                handle (fun postId parentComment -> Results.View(PostComment.NewCommentCustomElement(postId, parentComment)))
             }
         }
 

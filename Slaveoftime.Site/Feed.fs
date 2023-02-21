@@ -96,7 +96,7 @@ let generateFeedFile (sp: IServiceProvider) = task {
 
 
 let handle feedType =
-    Func<_>(fun () -> task {
+    Func<_, _>(fun () -> task {
         let fileName = FileInfo(feedCacheFile feedType)
         if fileName.Exists then
             return Results.File(fileName.FullName, contentType = "application/xml", lastModified = fileName.LastWriteTime)

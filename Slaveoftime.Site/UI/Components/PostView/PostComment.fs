@@ -166,21 +166,24 @@ type PostComment =
                 section {
                     class' "my-3"
                     childContent [
-                        if isAuthed then
-                            button {
-                                class' "btn btn-primary mx-auto my-2"
-                                hxTarget "#new-comment-placeholder"
-                                hxTrigger hxEvt.mouse.click
-                                hxSwap_beforeend
-                                hxPost $"view/post/{postId}/comment"
-                                "Add comment"
-                            }
-                        else
-                            a {
-                                class' "link link-primary mx-auto my-3"
-                                href $"signin?returnUrl={returnUrl}"
-                                "Signin to comment (GitHub)"
-                            }
+                        div {
+                            class' "flex items-center justify-center my-3"
+                            if isAuthed then
+                                button {
+                                    class' "btn btn-primary mx-auto"
+                                    hxTarget "#new-comment-placeholder"
+                                    hxTrigger hxEvt.mouse.click
+                                    hxSwap_beforeend
+                                    hxPost $"view/post/{postId}/comment"
+                                    "Add comment"
+                                }
+                            else
+                                a {
+                                    class' "link link-primary mx-auto"
+                                    href $"signin?returnUrl={returnUrl}"
+                                    "Signin to comment (GitHub)"
+                                }
+                        }
                         div {
                             id "new-comment-placeholder"
                             class' "overflow-auto max-h-[720px]"
