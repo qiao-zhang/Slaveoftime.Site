@@ -95,7 +95,7 @@ let generateFeedFile (sp: IServiceProvider) = task {
 }
 
 
-let handle feedType =
+let create feedType =
     Func<_, _>(fun () -> task {
         let fileName = FileInfo(feedCacheFile feedType)
         if fileName.Exists then

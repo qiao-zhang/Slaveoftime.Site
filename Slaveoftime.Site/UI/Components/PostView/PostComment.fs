@@ -199,7 +199,7 @@ type PostComment =
         )
 
 
-    static member NewCommentCustomElement(postId: Guid, parentComment: Nullable<Guid>) =
+    static member CreateNewComment(postId: Guid, parentComment: Nullable<Guid>) =
         html.customElement<NewPostComment> (
             attrs =
                 ((nameof Unchecked.defaultof<NewPostComment>.post_id => postId.ToString())

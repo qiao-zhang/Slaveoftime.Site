@@ -9,9 +9,9 @@ open Slaveoftime.UI.Pages
 
 let endpoints =
     endpoints "" {
-        get "feed" { handle (Feed.handle Feed.RSS) }
-        get "feed/rss" { handle (Feed.handle Feed.RSS) }
-        get "feed/atom" { handle (Feed.handle Feed.ATOM) }
+        get "feed" { handle (Feed.create Feed.RSS) }
+        get "feed/rss" { handle (Feed.create Feed.RSS) }
+        get "feed/atom" { handle (Feed.create Feed.ATOM) }
 
         get "signin" { SigninPage.Create() }
         post "signin" { handle Authenticate.signin }
@@ -27,7 +27,7 @@ let endpoints =
             get "post/{postId}/comment" { handle (fun (postId: Guid) -> Results.View(PostComment.Create postId)) }
             post "post/{postId}/comment" {
                 authorization
-                handle (fun postId parentComment -> Results.View(PostComment.NewCommentCustomElement(postId, parentComment)))
+                handle (fun postId parentComment -> Results.View(PostComment.CreateNewComment(postId, parentComment)))
             }
         }
 
