@@ -113,7 +113,7 @@ type PostDetail =
             div { class' "divider" }
             div {
                 class' "my-2"
-                hxTrigger' (hxEvt.load, delayMs = 3000)
+                hxTrigger' (hxEvt.load, delayMs = 2000)
                 hxSwap_outerHTML
                 hxGet $"view/post/{post.Id}/comment"
             }

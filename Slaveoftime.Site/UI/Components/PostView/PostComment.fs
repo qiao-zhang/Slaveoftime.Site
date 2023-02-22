@@ -9,11 +9,13 @@ open Microsoft.EntityFrameworkCore
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Components
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Configuration
 open Fun.Htmx
 open Fun.Result
 open Fun.Blazor
 open Fun.Blazor.Operators
 open Slaveoftime.Db
+open Slaveoftime.UI.Components
 
 
 let private replyIcon =
@@ -24,13 +26,13 @@ let private replyIcon =
         </svg>
         """
 
-let private commentIndent = 50
+let private commentIndent = 40
 
 let rec private renderComments level (comments: Comment seq) canComment =
     html.fragment [
         for comment in comments do
             div {
-                class' "rounded bg-slate-200 max-w-[400px] min-w-[200px] p-2 my-1 relative"
+                class' "rounded bg-slate-200/70 dark:bg-slate-800/50 dark:text-white max-w-[400px] min-w-[200px] p-2 my-1 relative"
                 style { marginLeft (level * commentIndent) }
                 childContent [
                     p {
@@ -38,7 +40,7 @@ let rec private renderComments level (comments: Comment seq) canComment =
                         span { comment.Author.Split("@")[0] }
                         span { comment.CreatedTime.ToString() }
                     }
-                    p { html.raw comment.Content }
+                    p { html.raw (Markdown.ConvertToHtml("", comment.Content)) }
                     if canComment then
                         button {
                             class' "btn btn-circle btn-sm btn-ghost absolute right-1 top-1"
@@ -112,19 +114,19 @@ type NewPostComment() =
                 match! newComment with
                 | None -> section {
                     textarea {
-                        class' "rounded-sm bg-slate-200 textarea w-full my-2"
+                        class' "textarea w-full my-2"
                         autofocus true
                         onchange (fun e -> comment <- e.Value.ToString())
                     }
                     div {
                         class' "flex items-center justify-end my-2 gap-2"
                         button {
-                            class' "btn btn-outline"
+                            class' "btn btn-outline btn-sm"
                             onclick (fun _ -> newComment.Publish(Some(Error "")))
                             "Cancel"
                         }
                         button {
-                            class' "btn btn-primary"
+                            class' "btn btn-primary btn-sm"
                             onclick (fun _ -> addComment ())
                             "Submit"
                         }
@@ -142,7 +144,7 @@ type NewPostComment() =
 
 type PostComment =
     static member Create(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor, logger: ILogger<PostComment>) ->
+        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor, logger: ILogger<PostComment>, config: IConfiguration) ->
             try
                 let ctx = ctx.HttpContext
                 let isAuthed = ctx.User.Identity.IsAuthenticated
@@ -168,28 +170,38 @@ type PostComment =
                     class' "my-3"
                     childContent [
                         div {
-                            class' "flex items-center justify-center my-3"
-                            if isAuthed then
+                            id "new-comment-placeholder"
+                            class' "overflow-auto max-h-[720px] px-2"
+                            renderComments 0 comments isAuthed
+                        }
+                        if isAuthed then
+                            div {
+                                class' "flex items-center justify-center my-3"
                                 button {
-                                    class' "btn btn-primary mx-auto"
+                                    class' "btn btn-primary btn-sm mx-auto"
                                     hxTarget "#new-comment-placeholder"
                                     hxTrigger hxEvt.mouse.click
                                     hxSwap_beforeend
                                     hxPost $"view/post/{postId}/comment"
                                     "Add comment"
                                 }
-                            else
-                                a {
-                                    class' "link link-primary mx-auto"
-                                    href $"signin?returnUrl={returnUrl}"
-                                    "Signin to comment (GitHub)"
-                                }
-                        }
-                        div {
-                            id "new-comment-placeholder"
-                            class' "overflow-auto max-h-[720px]"
-                            renderComments 0 comments isAuthed
-                        }
+                            }
+                        else if config.GetSection("auth").Exists() then
+                            div {
+                                class' "my-3"
+                                childContent [
+                                    p {
+                                        class' "text-primary text-center"
+                                        href $"signin?returnUrl={returnUrl}"
+                                        "Signin to add comment"
+                                    }
+                                    div {
+                                        class' "flex items-center justify-center flex-wrap mt-2"
+                                        Authenticate.AuthProviders(returnUrl)
+                                    }
+                                ]
+                            }
+                        js "Prism.highlightAll();"
                     ]
                 }
 
