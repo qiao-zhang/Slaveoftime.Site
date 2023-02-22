@@ -32,17 +32,25 @@ type Layout =
                     lang "en"
                     class' "bg-slate-100 dark:bg-slate-900"
                     head {
-                        chartsetUTF8
-                        baseUrl "/"
-                        viewport "width=device-width, initial-scale=1.0"
-                        link {
-                            rel "shortcut icon"
-                            href "/favicon.ico"
-                        }
-                        inlineStyle "css/tailwind-generated.css"
-                        inlineStyle "css/prism-night-owl.css"
-                        CustomElement.lazyBlazorJs ()
-                        headerNode
+                        childContent [
+                            chartsetUTF8
+                            baseUrl "/"
+                            viewport "width=device-width, initial-scale=1.0"
+                            link {
+                                rel "shortcut icon"
+                                href "/favicon.png"
+                            }
+                            for iconSize in [ 32; 48; 96; 144 ] do
+                                link {
+                                    rel "icon"
+                                    sizes $"{iconSize}x{iconSize}"
+                                    href $"/favicon_{iconSize}x{iconSize}.png"
+                                }
+                            inlineStyle "css/tailwind-generated.css"
+                            inlineStyle "css/prism-night-owl.css"
+                            CustomElement.lazyBlazorJs ()
+                            headerNode
+                        ]
                     }
                     body {
                         Navbar.Create()
