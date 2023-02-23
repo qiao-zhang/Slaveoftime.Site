@@ -90,9 +90,15 @@ app.UseResponseCompression()
 
 app.UseImageSharp()
 
-app.UseStaticFiles()
 app.UseStaticFiles(
-    StaticFileOptions(RequestPath = "/blog", FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"))
+    StaticFileOptions(OnPrepareResponse = fun context -> context.Context.Response.Headers.CacheControl <- $"public, max-age={60 * 60 * 24 * 30}")
+)
+app.UseStaticFiles(
+    StaticFileOptions(
+        RequestPath = "/blog",
+        FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory() </> "UI/Pages/Posts"),
+        OnPrepareResponse = fun context -> context.Context.Response.Headers.CacheControl <- $"public, max-age={60 * 60 * 24 * 30}"
+    )
 )
 
 app.UseAuthentication()
