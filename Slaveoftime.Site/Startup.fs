@@ -90,6 +90,7 @@ app.UseResponseCompression()
 
 app.UseImageSharp()
 
+app.UseStaticFiles()
 app.UseStaticFiles(
     StaticFileOptions(OnPrepareResponse = fun context -> context.Context.Response.Headers.CacheControl <- $"public, max-age={60 * 60 * 24 * 30}")
 )
