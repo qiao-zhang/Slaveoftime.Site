@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Linq
 open Microsoft.Extensions.Caching.Memory
+open Microsoft.EntityFrameworkCore
 open Fun.Htmx
 open Fun.Result
 open Fun.Blazor
@@ -123,25 +124,25 @@ type PostDetail =
 
 
     static member Create(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb) ->
-            let post = db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj
-
-            match post with
-            | Some post -> PostDetail.Create post
-            | None -> PostDetail.PostNotFound
-        )
+        html.inject (fun (db: SlaveoftimeDb) -> task {
+            let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.IsActive && x.Id = postId)
+            return
+                match Option.ofObj post with
+                | Some post -> PostDetail.Create post
+                | None -> PostDetail.PostNotFound
+        })
 
 
     static member CreateForFeed(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb) ->
-            let post = db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj
+        html.inject (fun (db: SlaveoftimeDb) -> task {
+            let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.IsActive && x.Id = postId)
+            return
+                match Option.ofObj post with
+                | Some post -> div {
+                    id "post-detail"
+                    class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
+                    childContent [ PostDetail.PostContent post; stylesheet $"{host}/css/tailwind-generated.css"; PostDetail.Scripts ]
+                  }
 
-            match post with
-            | Some post -> div {
-                id "post-detail"
-                class' "sm:w-5/6 md:w-3/4 max-w-[720px] mx-auto post-detail"
-                childContent [ PostDetail.PostContent post; stylesheet $"{host}/css/tailwind-generated.css"; PostDetail.Scripts ]
-              }
-
-            | None -> PostDetail.PostNotFound
-        )
+                | None -> PostDetail.PostNotFound
+        })

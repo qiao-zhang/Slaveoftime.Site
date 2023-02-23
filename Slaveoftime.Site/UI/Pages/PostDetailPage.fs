@@ -1,7 +1,7 @@
 namespace Slaveoftime.UI.Pages
 
 open System
-open System.Linq
+open Microsoft.EntityFrameworkCore
 open Fun.Blazor
 open Slaveoftime
 open Slaveoftime.Db
@@ -45,11 +45,13 @@ type PostDetailPage =
         | None -> Layout.Create(bodyNode = PostDetail.PostNotFound)
 
     static member Create(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb) ->
-            db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Id = postId) |> Option.ofObj |> PostDetailPage.Create
-        )
+        html.inject (fun (db: SlaveoftimeDb) -> task {
+            let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.IsActive && x.Id = postId)
+            return post |> Option.ofObj |> PostDetailPage.Create
+        })
 
     static member Create(postSlug: string) =
-        html.inject (fun (db: SlaveoftimeDb) ->
-            db.Posts.FirstOrDefault(fun x -> x.IsActive && x.Slug = postSlug) |> Option.ofObj |> PostDetailPage.Create
-        )
+        html.inject (fun (db: SlaveoftimeDb) -> task {
+            let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.IsActive && x.Slug = postSlug)
+            return post |> Option.ofObj |> PostDetailPage.Create
+        })

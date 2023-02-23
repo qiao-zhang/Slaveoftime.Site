@@ -3,6 +3,8 @@
 open System
 open System.Linq
 open Microsoft.AspNetCore.Http
+open Microsoft.EntityFrameworkCore
+open Microsoft.Extensions.Logging
 open FSharp.Data.Adaptive
 open Fun.Blazor
 open Slaveoftime.Db
@@ -52,36 +54,44 @@ type PostList =
         ]
     }
 
+    static member private NotFound = div {
+        class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
+        "No posts are found"
+    }
+
     static member Create() =
-        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor) ->
-            let ctx = ctx.HttpContext
+        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor, logger: ILogger<PostList>) -> task {
+            try
+                let ctx = ctx.HttpContext
 
-            let postsQuery =
-                match ctx.Request.Query.TryGetValue("search") with
-                | true, query ->
-                    let query = query.ToString().ToLower()
-                    db.Posts.Where(fun x ->
-                        x.Title.ToLower().Contains(query) || x.Keywords.ToLower().Contains(query) || x.Description.ToLower().Contains(query)
-                    )
-                | _ -> db.Posts.AsQueryable()
+                let postsQuery =
+                    match ctx.Request.Query.TryGetValue("search") with
+                    | true, query ->
+                        let query = query.ToString().ToLower()
+                        db.Posts.Where(fun x ->
+                            x.Title.ToLower().Contains(query) || x.Keywords.ToLower().Contains(query) || x.Description.ToLower().Contains(query)
+                        )
+                    | _ -> db.Posts.AsQueryable()
 
-            let postsQuery = postsQuery.Where(fun x -> x.IsActive)
+                let postsQuery = postsQuery.Where(fun x -> x.IsActive)
 
-            let posts = postsQuery.OrderByDescending(fun x -> x.CreatedTime).ToList()
-            let postsCommentCount = postsQuery.Select(fun x -> { Id = x.Id; Count = x.Comments.Count }).ToList()
+                let! posts = postsQuery.OrderByDescending(fun x -> x.CreatedTime).ToListAsync()
+                let! postsCommentCount = postsQuery.Select(fun x -> { Id = x.Id; Count = x.Comments.Count }).ToListAsync()
 
-            if posts.Count = 0 then
-                div {
-                    class' "p-10 my-10 text-center text-danger-400/50 font-semibold text-2xl"
-                    "No posts are found"
-                }
-            else
-                posts
-                |> Seq.map (fun p ->
-                    let count =
-                        postsCommentCount |> Seq.tryFind (fun x -> x.Id = p.Id) |> Option.map (fun x -> x.Count) |> Option.defaultValue 0
-                    p, count
-                )
-                |> Seq.map PostList.PostCard
-                |> html.fragment
-        )
+                if posts.Count = 0 then
+                    return PostList.NotFound
+                else
+                    return
+                        posts
+                        |> Seq.map (fun p ->
+                            let count =
+                                postsCommentCount |> Seq.tryFind (fun x -> x.Id = p.Id) |> Option.map (fun x -> x.Count) |> Option.defaultValue 0
+                            p, count
+                        )
+                        |> Seq.map PostList.PostCard
+                        |> html.fragment
+
+            with ex ->
+                logger.LogError(ex, "Create post list failed")
+                return PostList.NotFound
+        })

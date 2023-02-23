@@ -38,7 +38,7 @@ type Markdown =
                 div {
                     class' "absolute -top-6 left-1 right-1 flex items-center justify-center"
                     p {
-                        class' "py-1 px-2 bg-primary rounded-full text-xs opacity-75 text-white truncate"
+                        class' "py-1 px-2 bg-primary rounded-full text-xs opacity-85 text-white truncate"
                         file
                     }
                 }

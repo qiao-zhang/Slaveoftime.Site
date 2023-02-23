@@ -38,7 +38,7 @@
 	<ItemGroup>
 		<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="7.0.0" />
 		<PackageReference Include="Fun.AspNetCore.Blazor" Version="0.1.1" />
-		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta007" />
+		<PackageReference Include="Fun.Blazor" Version="3.0.0-beta008" />
 		<PackageReference Include="Fun.Blazor.CustomElements" Version="3.0.0-beta007" />
 		<PackageReference Include="Fun.Blazor.Server" Version="3.0.0-beta002" />
 		<PackageReference Include="Fun.Blazor.HtmlTemplate" Version="3.0.0-beta002" />

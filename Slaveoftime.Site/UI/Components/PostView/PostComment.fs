@@ -144,7 +144,7 @@ type NewPostComment() =
 
 type PostComment =
     static member Create(postId: Guid) =
-        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor, logger: ILogger<PostComment>, config: IConfiguration) ->
+        html.inject (fun (db: SlaveoftimeDb, ctx: IHttpContextAccessor, logger: ILogger<PostComment>, config: IConfiguration) -> task {
             try
                 let ctx = ctx.HttpContext
                 let isAuthed = ctx.User.Identity.IsAuthenticated
@@ -158,15 +158,16 @@ type PostComment =
                         comment
                     )
 
-                let post = db.Posts.FirstOrDefault(fun x -> x.Id = postId)
-                let comments = db.Comments.Where(fun x -> x.PostId = postId).ToListAsync().Result |> groupComments (Nullable())
+                let! post = db.Posts.FirstOrDefaultAsync(fun x -> x.Id = postId)
+                let! comments = db.Comments.Where(fun x -> x.PostId = postId).ToListAsync() |> Task.map (groupComments (Nullable()))
+
                 let returnUrl =
                     if String.IsNullOrEmpty post.Slug then
                         $"/blog/{post.Id}"
                     else
                         $"/blog/{post.Slug}"
 
-                section {
+                return section {
                     class' "my-3"
                     childContent [
                         div {
@@ -207,8 +208,8 @@ type PostComment =
 
             with ex ->
                 logger.LogError(ex, "Render post {id} comments failed", postId)
-                html.none
-        )
+                return html.none
+        })
 
 
     static member CreateNewComment(postId: Guid, parentComment: Nullable<Guid>) =
